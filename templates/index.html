@@ -70,8 +70,8 @@
     let editor = CodeMirror.fromTextArea(codeBox, setup);
     let listPending = false;
     editor.on("keyup", function (cm, event) {
-        // console.log(event);
-        if (!cm.state.completionActive) {
+        console.log(event.key);
+        if (true) {
             if(event.key == '(') {
                 putChar(editor, ')');
                 CodeMirror.commands.goColumnLeft(editor);
@@ -87,7 +87,7 @@
             } else if(event.key == '\'') {
                 putChar(editor, '\'');
                 CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.keyCode != 13) {
+            } else if(!cm.state.completionActive && event.keyCode != 13) {
                 CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
                 listPending = true;
             }
