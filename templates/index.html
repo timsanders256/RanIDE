@@ -68,7 +68,7 @@
         },
     };
     let editor = CodeMirror.fromTextArea(codeBox, setup);
-    let state_pairing = false;
+    let listPending = false;
     editor.on("keyup", function (cm, event) {
         // console.log(event);
         if (!cm.state.completionActive) {
@@ -88,10 +88,8 @@
                 putChar(editor, '\'');
                 CodeMirror.commands.goColumnLeft(editor);
             } else if(event.keyCode != 13) {
-                console.log('found');        /*Enter - do not open autocomplete list just after item has been selected in it*/ 
                 CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
-                let doc = editor.getDoc();
-                let cur = editor.getCursor();
+                listPending = true;
             }
           }
     });
