@@ -96,8 +96,11 @@
         if (completion.hint)
           completion.hint(self.cm, data, completion);
         else{
-          self.cm.replaceRange(getText(completion), completion.from || data.from,
+          let compText = getText(completion);
+          self.cm.replaceRange(compText, completion.from || data.from,
                                completion.to || data.to, "complete"); 
+          if(compText.endsWith("()"))
+            CodeMirror.commands.goColumnLeft(self.cm);
         }
         CodeMirror.signal(data, "pick", completion);
         self.cm.scrollIntoView();
