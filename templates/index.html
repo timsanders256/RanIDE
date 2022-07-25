@@ -70,27 +70,42 @@
     let editor = CodeMirror.fromTextArea(codeBox, setup);
     let listPending = false;
     editor.on("keyup", function (cm, event) {
-        if (true) {
-            if(event.key == '(') {
+        if(!cm.state.completionActive && event.keyCode != 13) {
+            CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
+            listPending = true;
+        }        
+    });
+    
+    editor.on("change", function (cm, event) {
+        if(event.origin == "+input") {
+            if(event.text == '(') {
                 putChar(editor, ')');
                 CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.key == '[') {
+            } else if(event.text == '[') {
                 putChar(editor, ']');
                 CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.key == '{') {
+            } else if(event.text == '{') {
                 putChar(editor, '}');
                 CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.key == '"') {
+            } else if(event.text == '"') {
                 putChar(editor, '"');
                 CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.key == '\'') {
+            } else if(event.text == '\'') {
                 putChar(editor, '\'');
                 CodeMirror.commands.goColumnLeft(editor);
-            } else if(!cm.state.completionActive && event.keyCode != 13) {
-                CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
-                listPending = true;
             }
-          }
+        } else if(event.origin == "+delete") {
+            let doc = editor.getDoc();
+            let cur = editor.getCursor();
+            let line = editor.getLine(cur.line);
+            if((event.removed == "(" &&  line.length > cur.ch && line[cur.ch] == ")") || 
+            (event.removed == "[" &&  line.length > cur.ch && line[cur.ch] == "]" )||
+            (event.removed == "{" &&  line.length > cur.ch && line[cur.ch] == "{" )||
+            (event.removed == "'" &&  line.length > cur.ch && line[cur.ch] == "'" )||
+            (event.removed == "\"" &&  line.length > cur.ch && line[cur.ch] == "\"" )){
+                doc.replaceRange("", from=cur, to={line: cur.line, ch: cur.ch + 1});
+            }
+        }
     });
 </script>
 </html>
