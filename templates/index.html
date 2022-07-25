@@ -70,7 +70,6 @@
     let editor = CodeMirror.fromTextArea(codeBox, setup);
     let listPending = false;
     editor.on("keyup", function (cm, event) {
-        console.log(event.key);
         if (true) {
             if(event.key == '(') {
                 putChar(editor, ')');
