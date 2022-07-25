@@ -33,7 +33,7 @@
     if (!context) var context = [];
     context.push(tprop);
 
-    var completionList = getCompletions(token, context);
+    var completionList = getCompletions(token, context); 
     completionList = completionList.sort();
     //prevent autocomplete for last word, instead show dropdown with one word
     if(completionList.length == 1) {
@@ -49,8 +49,9 @@
     return scriptHint(editor, pythonKeywordsU, function (e, cur) {return e.getTokenAt(cur);});
   };
 
-  var pythonKeywords = "and del from not while as elif global or with assert else if pass yield"
-+ "break except import print class exec in raise continue finally is return def for lambda try";
+  var pythonKeywords = "False None True and as assert async await break class continue def"
+  + " del elif else except finally for from global if import in is lambda nonlocal not or"
+  + "pass raise return try while with yield";
   var pythonKeywordsL = pythonKeywords.split(" ");
   var pythonKeywordsU = pythonKeywords.toUpperCase().split(" ");
 

@@ -95,9 +95,10 @@
       this.cm.operation(function() {
         if (completion.hint)
           completion.hint(self.cm, data, completion);
-        else
+        else{
           self.cm.replaceRange(getText(completion), completion.from || data.from,
-                               completion.to || data.to, "complete");
+                               completion.to || data.to, "complete"); 
+        }
         CodeMirror.signal(data, "pick", completion);
         self.cm.scrollIntoView();
       });

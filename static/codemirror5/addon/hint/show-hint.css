@@ -10,12 +10,12 @@
   -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
   -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
   box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-  border-radius: 3px;
-  border: 1px solid silver;
+  border-radius: 0;
+  border: 0;
 
-  background: white;
-  font-size: 90%;
-  font-family: monospace;
+  background: #505050;
+  font-size: 160%;
+  font-family: 'Courier New', Courier, monospace;
 
   max-height: 20em;
   overflow-y: auto;
@@ -24,13 +24,13 @@
 .CodeMirror-hint {
   margin: 0;
   padding: 0 4px;
-  border-radius: 2px;
+  border-radius: 0;
   white-space: pre;
-  color: black;
+  color: gainsboro;
   cursor: pointer;
 }
 
 li.CodeMirror-hint-active {
-  background: #08f;
+  background: #e9d24eAA;
   color: white;
 }
