@@ -71,47 +71,21 @@ div[class="main"] {
     display: flex;
     z-index: 5;
     flex-direction: column;
-    justify-content: stretch;
+    justify-content: flex-end;
 }
 
-textarea {
-    border-radius: 0;
-    border-width: 0;
-    resize: none;
-    margin: 0;
-    outline: 0;
-    padding: 8px;
-    box-sizing: border-box;
+#wrapper {
+    height: auto;
+    flex-grow: 1;
     font-family: 'Courier New', Courier, monospace;
     line-height: 24px;
     color: white;
 }
 
-.CodeMirror {
-    overflow-x: hidden;
-    overflow-y: hidden;
-    position:absolute;
-    top:0;
-    bottom:0;
-    left:0;
-    right:0;
-    height:100%;
-    word-break: break-word;
-    font-size: 25px;
-    font-family: 'Courier New', Courier, monospace;
-}
-
-div[class="wrapper"] {
-    flex:1 1 auto;
-    margin-top:0;
-    height:100%;
-    position:relative;
-	overflow:hidden;
-}
-
 textarea[id="terminal"] {
     width: auto;
     height: 200px;
+    box-sizing: border-box;
     background: black;
 }
 

@@ -1,28 +1,19 @@
 <!DOCTYPE html>
-<html>
+
 <head>
   <title>RanIDE Demo</title>
   <meta charset="UTF-8" />
   <script src="static/vue.js" type="text/javascript"></script>
   <script src="static/axios.js" type="text/javascript"></script>
-  <script src="static/codemirror5/lib/codemirror.js"></script>
-  <script src="static/codemirror5/addon/hint/show-hint.js"></script>
-  <script src="static/codemirror5/addon/hint/python-hint.js"></script>
-  <link href="static/codemirror5/addon/hint/show-hint.css" rel="stylesheet">
-  <!-- javascript语言模式引入 -->
-  <script src="static/codemirror5/mode/python/python.js"></script>
-  <link href="static/codemirror5/lib/codemirror.css" rel="stylesheet">
-  <link rel="shortcut icon" href="static/img/thu.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="static/img/ran.ico" type="image/x-icon" />
+  <link data-name="vs/editor/editor.main" rel="stylesheet" href="static/monaco-editor/min/vs/editor/editor.main.css">
+  <script src="static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>></script>
+  <script src="static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+  <script src="static/monaco-editor/min/vs/editor/editor.main.js"></script>
   <link
     rel="stylesheet"
     type="text/css"
     href="static/index.css"
-  />
-  
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="static/codemirror5/theme/erlang-dark.css"
   />
 </head>
 <body>
@@ -33,9 +24,7 @@
     <div class="body">
       <div class="left"></div>
       <div class="main">
-	    <div class="wrapper">
-            <textarea id="codebox" spellcheck="false"></textarea>
-		</div>
+	    <div id="wrapper"></div>
         <textarea id="terminal" spellcheck="false"></textarea>
       </div>
     </div>
@@ -45,67 +34,26 @@
   </footer>
 </body>
 <script type="text/javascript">
-    function putChar(editor, str){
-        let doc = editor.getDoc();
-        let cur = editor.getCursor();
-        let position = {
-            line: cur.line,
-            ch: cur.ch
+  require.config({ paths: { 'vs': 'static/monaco-editor/min/vs' } });
+  require(['vs/editor/editor.main'], function () {
+    monaco.editor.background = 'black';
+    monaco.editor.foreground = 'black';
+    monaco.editor.defineTheme('myTheme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [{ background: '808080' }],
+        colors: {
+          'editors.foreground': '#f4f4f4',
         }
-        doc.replaceRange(str, position);
+    });
+    monaco.editor.setTheme('myTheme');
+    function newEditor(container_id, code, language) {
+        var model = monaco.editor.createModel(code, language);
+        var editor = monaco.editor.create(document.getElementById(container_id), {
+            model: model,
+        });
+        return editor;
     }
-    let codeBox = document.getElementById('codebox');
-    let setup = {
-        mode: 'python',
-        theme: 'erlang-dark',
-        indentUnit: 4,
-		    lineWrapping: true,
-        lineNumbers: true,
-		    hintOptions: {
-            completeSingle: true,
-            alignWithWord: true,
-            hint: CodeMirror.pythonHint
-        },
-    };
-    let editor = CodeMirror.fromTextArea(codeBox, setup);
-    let listPending = false;
-    editor.on("keyup", function (cm, event) {
-        if(!cm.state.completionActive && event.keyCode != 13) {
-            CodeMirror.commands.autocomplete(cm, null, {completeSingle: false});
-            listPending = true;
-        }        
-    });
-    
-    editor.on("change", function (cm, event) {
-        if(event.origin == "+input") {
-            if(event.text == '(') {
-                putChar(editor, ')');
-                CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.text == '[') {
-                putChar(editor, ']');
-                CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.text == '{') {
-                putChar(editor, '}');
-                CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.text == '"') {
-                putChar(editor, '"');
-                CodeMirror.commands.goColumnLeft(editor);
-            } else if(event.text == '\'') {
-                putChar(editor, '\'');
-                CodeMirror.commands.goColumnLeft(editor);
-            }
-        } else if(event.origin == "+delete") {
-            let doc = editor.getDoc();
-            let cur = editor.getCursor();
-            let line = editor.getLine(cur.line);
-            if((event.removed == "(" &&  line.length > cur.ch && line[cur.ch] == ")") || 
-            (event.removed == "[" &&  line.length > cur.ch && line[cur.ch] == "]" )||
-            (event.removed == "{" &&  line.length > cur.ch && line[cur.ch] == "{" )||
-            (event.removed == "'" &&  line.length > cur.ch && line[cur.ch] == "'" )||
-            (event.removed == "\"" &&  line.length > cur.ch && line[cur.ch] == "\"" )){
-                doc.replaceRange("", from=cur, to={line: cur.line, ch: cur.ch + 1});
-            }
-        }
-    });
+    newEditor("wrapper", "", "python");
+});
 </script>
-</html>
