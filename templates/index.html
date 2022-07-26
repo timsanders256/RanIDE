@@ -42,7 +42,7 @@
     monaco.editor.defineTheme('darkTheme', {
         base: 'hc-black',
         inherit: true,
-        rules: [{ background: '808080' }],
+        rules: [{ background: '808080FF' }],
         colors: {
           'editors.foreground': '#f4f4f4',
           'editorSuggestWidget.foreground': 'white',
@@ -61,36 +61,35 @@
         "input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
         "object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
         "slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
-    let suggestions = [];
-    keywords.forEach(item => {
-        suggestions.push({
-          label: item,
-          kind: monaco.languages.CompletionItemKind.Keyword,
-          insertText: item
-        });
-    })
-    builtins.forEach(item => {
-        suggestions.push({
-          label: item,
-          kind: monaco.languages.CompletionItemKind.Method,
-          insertText: item
-        });
-    })
+    
     monaco.languages.registerCompletionItemProvider('python', {
 				provideCompletionItems: function () {
-					return {
-						suggestions:suggestions
-					};
-				},
-			});
-      var editor = monaco.editor.create(document.getElementById('wrapper'), {
-          value: "",
-          language: 'python',
-          wordBasedSuggestions: true,
-          roundedSelection: false,
-          scrollBeyondLastLine: false,
-          readOnly: false,
-          theme: 'darkTheme'
-      });
+            let suggestions = [];
+            keywords.forEach(item => {
+                suggestions.push({
+                  label: item,
+                  kind: monaco.languages.CompletionItemKind.Keyword,
+                  insertText: item
+                });
+            })
+            builtins.forEach(item => {
+                suggestions.push({
+                  label: item,
+                  kind: monaco.languages.CompletionItemKind.Method,
+                  insertText: item
+                });
+            })
+            return {   suggestions:suggestions    };
+        },
+    });
+    var editor = monaco.editor.create(document.getElementById('wrapper'), {
+        value: "",
+        language: 'python',
+        wordBasedSuggestions: true,
+        roundedSelection: false,
+        scrollBeyondLastLine: false,
+        readOnly: false,
+        theme: 'darkTheme'
+    });
 });
 </script>
