@@ -7,7 +7,7 @@
   <script src="static/axios.js" type="text/javascript"></script>
   <link rel="shortcut icon" href="static/img/ran.ico" type="image/x-icon" />
   <link data-name="vs/editor/editor.main" rel="stylesheet" href="static/monaco-editor/min/vs/editor/editor.main.css">
-  <script src="static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>></script>
+  <script src="static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
   <script src="static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
   <script src="static/monaco-editor/min/vs/editor/editor.main.js"></script>
   <link
@@ -23,7 +23,7 @@
     </div>
     <div class="body">
       <div class="left"></div>
-      <div class="main">
+      <div class="main_ent">
 	    <div id="wrapper"></div>
         <textarea id="terminal" spellcheck="false"></textarea>
       </div>
@@ -33,20 +33,179 @@
     RanIDE 2022
   </footer>
 </body>
+
 <script type="text/javascript">
   require.config({ paths: { 'vs': 'static/monaco-editor/min/vs' } });
   require(['vs/editor/editor.main'], function () {
     monaco.editor.background = 'black';
     monaco.editor.foreground = 'black';
-    monaco.editor.defineTheme('myTheme', {
-        base: 'vs-dark',
+    monaco.editor.defineTheme('darkTheme', {
+        base: 'hc-black',
         inherit: true,
         rules: [{ background: '808080' }],
         colors: {
           'editors.foreground': '#f4f4f4',
+          'editorSuggestWidget.foreground': 'white',
         }
     });
-    monaco.editor.setTheme('myTheme');
+    monaco.editor.setTheme('darkTheme');
+    let keywords = [
+        "False",
+        "None",
+        "True",
+        "and",
+        "as",
+        "assert",
+        "async",
+        "await",
+        "break",
+        "class",
+        "continue",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "exec",
+        "finally",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "nonlocal",
+        "not",
+        "or",
+        "pass",
+        "print",
+        "raise",
+        "return",
+        "try",
+        "while",
+        "with",
+        "yield",
+        "int",
+        "float",
+        "long",
+        "complex",
+        "hex",
+        "abs",
+        "all",
+        "any",
+        "apply",
+        "basestring",
+        "bin",
+        "bool",
+        "buffer",
+        "bytearray",
+        "callable",
+        "chr",
+        "classmethod",
+        "cmp",
+        "coerce",
+        "compile",
+        "delattr",
+        "dict",
+        "dir",
+        "divmod",
+        "enumerate",
+        "eval",
+        "execfile",
+        "file",
+        "filter",
+        "format",
+        "frozenset",
+        "getattr",
+        "globals",
+        "hasattr",
+        "hash",
+        "help",
+        "id",
+        "input",
+        "intern",
+        "isinstance",
+        "issubclass",
+        "iter",
+        "len",
+        "locals",
+        "list",
+        "map",
+        "max",
+        "memoryview",
+        "min",
+        "next",
+        "object",
+        "oct",
+        "open",
+        "ord",
+        "pow",
+        "property",
+        "reversed",
+        "range",
+        "raw_input",
+        "reduce",
+        "reload",
+        "repr",
+        "round",
+        "self",
+        "set",
+        "setattr",
+        "slice",
+        "sorted",
+        "staticmethod",
+        "str",
+        "sum",
+        "super",
+        "tuple",
+        "type",
+        "unichr",
+        "unicode",
+        "vars",
+        "xrange",
+        "zip",
+        "__dict__",
+        "__methods__",
+        "__members__",
+        "__class__",
+        "__bases__",
+        "__name__",
+        "__mro__",
+        "__subclasses__",
+        "__init__",
+        "__import__"
+    ];
+    let builtins = ["abs","aiter","all","any","anext","ascii","bin","bool","breakpoint","bytearray","bytes","callable","chr","classmethod",
+"compile","complex","delattr","dict","dir","divmod","enumerate","eval","exec","filter","float","format","frozenset",
+"getattr","globals","hasattr","hash","help","hex","id","input","int","isinstance","issubclass","iter","len","list","locals","map",
+"max","memoryview","min","next","object","oct","open","ord","pow","print","property","range","repr","reversed","round",
+"set","setattr","slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+    monaco.languages.registerCompletionItemProvider('python', {
+				provideCompletionItems: function () {
+					let suggestions = [];
+					// 这个keywords就是python.js文件中有的
+					keywords.forEach(item => {
+              suggestions.push({
+                label: item,
+                kind: monaco.languages.CompletionItemKind.Keyword,
+                insertText: item
+              });
+					})
+          builtins.forEach(item => {
+              suggestions.push({
+                label: item,
+                kind: monaco.languages.CompletionItemKind.Method,
+                insertText: item
+              });
+					})
+					return {
+						// 最后要返回一个数组
+						suggestions:suggestions
+					};
+				},
+			});
     function newEditor(container_id, code, language) {
         var model = monaco.editor.createModel(code, language);
         var editor = monaco.editor.create(document.getElementById(container_id), {

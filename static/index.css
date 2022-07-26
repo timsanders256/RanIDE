@@ -19,6 +19,7 @@ main {
     display: flex;
     flex-direction: column;
     justify-content: stretch;
+    color: white;
 }
 
 div[class="top"] {
@@ -65,7 +66,7 @@ div[class="left"] {
     z-index: 9;
 }
 
-div[class="main"] {
+div[class="main_ent"] {
     width: auto;
     flex-grow: 1;
     display: flex;
