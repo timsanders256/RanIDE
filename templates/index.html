@@ -49,170 +49,48 @@
         }
     });
     monaco.editor.setTheme('darkTheme');
-    let keywords = [
-        "False",
-        "None",
-        "True",
-        "and",
-        "as",
-        "assert",
-        "async",
-        "await",
-        "break",
-        "class",
-        "continue",
-        "def",
-        "del",
-        "elif",
-        "else",
-        "except",
-        "exec",
-        "finally",
-        "for",
-        "from",
-        "global",
-        "if",
-        "import",
-        "in",
-        "is",
-        "lambda",
-        "nonlocal",
-        "not",
-        "or",
-        "pass",
-        "print",
-        "raise",
-        "return",
-        "try",
-        "while",
-        "with",
-        "yield",
-        "int",
-        "float",
-        "long",
-        "complex",
-        "hex",
-        "abs",
-        "all",
-        "any",
-        "apply",
-        "basestring",
-        "bin",
-        "bool",
-        "buffer",
-        "bytearray",
-        "callable",
-        "chr",
-        "classmethod",
-        "cmp",
-        "coerce",
-        "compile",
-        "delattr",
-        "dict",
-        "dir",
-        "divmod",
-        "enumerate",
-        "eval",
-        "execfile",
-        "file",
-        "filter",
-        "format",
-        "frozenset",
-        "getattr",
-        "globals",
-        "hasattr",
-        "hash",
-        "help",
-        "id",
-        "input",
-        "intern",
-        "isinstance",
-        "issubclass",
-        "iter",
-        "len",
-        "locals",
-        "list",
-        "map",
-        "max",
-        "memoryview",
-        "min",
-        "next",
-        "object",
-        "oct",
-        "open",
-        "ord",
-        "pow",
-        "property",
-        "reversed",
-        "range",
-        "raw_input",
-        "reduce",
-        "reload",
-        "repr",
-        "round",
-        "self",
-        "set",
-        "setattr",
-        "slice",
-        "sorted",
-        "staticmethod",
-        "str",
-        "sum",
-        "super",
-        "tuple",
-        "type",
-        "unichr",
-        "unicode",
-        "vars",
-        "xrange",
-        "zip",
-        "__dict__",
-        "__methods__",
-        "__members__",
-        "__class__",
-        "__bases__",
-        "__name__",
-        "__mro__",
-        "__subclasses__",
-        "__init__",
-        "__import__"
-    ];
-    let builtins = ["abs","aiter","all","any","anext","ascii","bin","bool","breakpoint","bytearray","bytes","callable","chr","classmethod",
-"compile","complex","delattr","dict","dir","divmod","enumerate","eval","exec","filter","float","format","frozenset",
-"getattr","globals","hasattr","hash","help","hex","id","input","int","isinstance","issubclass","iter","len","list","locals","map",
-"max","memoryview","min","next","object","oct","open","ord","pow","print","property","range","repr","reversed","round",
-"set","setattr","slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+    let keywords = ["False","None","True","and","as","assert","async","await","break","class","continue",
+        "def","del","elif","else","except","finally","for","from","global","if","import","in",
+        "is","lambda","nonlocal","not","or","pass","raise","return","try","while","with","yield",
+        "long","apply","basestring","buffer","cmp","coerce","execfile","file","intern","raw_input",
+        "reduce","reload","self","unichr","unicode","xrange","__dict__","__methods__","__members__",
+        "__class__","__bases__","__name__","__mro__","__subclasses__","__init__"];
+    let builtins = ["abs","aiter","all","any","anext","ascii","bin","bool","breakpoint","bytearray","bytes",
+        "callable","chr","classmethod","compile","complex","delattr","dict","dir","divmod","enumerate","eval",
+        "exec","filter","float","format","frozenset","getattr","globals","hasattr","hash","help","hex","id",
+        "input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
+        "object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
+        "slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+    let suggestions = [];
+    keywords.forEach(item => {
+        suggestions.push({
+          label: item,
+          kind: monaco.languages.CompletionItemKind.Keyword,
+          insertText: item
+        });
+    })
+    builtins.forEach(item => {
+        suggestions.push({
+          label: item,
+          kind: monaco.languages.CompletionItemKind.Method,
+          insertText: item
+        });
+    })
     monaco.languages.registerCompletionItemProvider('python', {
 				provideCompletionItems: function () {
-					let suggestions = [];
-					// 这个keywords就是python.js文件中有的
-					keywords.forEach(item => {
-              suggestions.push({
-                label: item,
-                kind: monaco.languages.CompletionItemKind.Keyword,
-                insertText: item
-              });
-					})
-          builtins.forEach(item => {
-              suggestions.push({
-                label: item,
-                kind: monaco.languages.CompletionItemKind.Method,
-                insertText: item
-              });
-					})
 					return {
-						// 最后要返回一个数组
 						suggestions:suggestions
 					};
 				},
 			});
-    function newEditor(container_id, code, language) {
-        var model = monaco.editor.createModel(code, language);
-        var editor = monaco.editor.create(document.getElementById(container_id), {
-            model: model,
-        });
-        return editor;
-    }
-    newEditor("wrapper", "", "python");
+      var editor = monaco.editor.create(document.getElementById('wrapper'), {
+          value: "",
+          language: 'python',
+          wordBasedSuggestions: true,
+          roundedSelection: false,
+          scrollBeyondLastLine: false,
+          readOnly: false,
+          theme: 'darkTheme'
+      });
 });
 </script>
