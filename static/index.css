@@ -81,6 +81,8 @@ div[class="main_ent"] {
     font-family: 'Courier New', Courier, monospace;
     line-height: 24px;
     color: white;
+    outline: 0px;
+    border: 0px;
 }
 
 textarea[id="terminal"] {
@@ -88,6 +90,8 @@ textarea[id="terminal"] {
     height: 200px;
     box-sizing: border-box;
     background: black;
+    color: white;
+    padding: 8px;
 }
 
 footer {
