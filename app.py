@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, json
 import time, random
 app = Flask(__name__)
-app.secret_key = 'komejikoishi'
+app.secret_key = 'komejikoishi'  #¹ÅÃ÷µØÁµ
 
 @app.route('/') # homepage
 def homepage():

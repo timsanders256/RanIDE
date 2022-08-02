@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\static",
+    "\\static\\monaco-editor",
+    "\\static\\monaco-editor\\esm\\vs",
+    "\\static\\monaco-editor\\esm\\vs\\editor",
+    "\\static\\monaco-editor\\esm\\vs\\editor\\contrib\\linesOperations",
+    "\\static\\monaco-editor\\esm\\vs\\editor\\contrib\\linesOperations\\browser",
+    "\\static\\monaco-editor\\min-maps\\vs",
+    "\\templates"
+  ],
+  "SelectedNode": "\\app.py",
+  "PreviewInSolutionExplorer": false
+}
