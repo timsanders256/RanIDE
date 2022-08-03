@@ -107,3 +107,13 @@ footer {
     box-shadow:0 0 16px rgba(0,0,0,0.9);
     z-index: 10;
 }
+
+.breakpoints{
+    background: red;
+    background: radial-gradient(circle at 3px 3px, white, red);
+    width: 10px !important;
+    height: 10px !important;
+    left: 0px !important;
+    top: 3px;
+    border-radius: 5px;
+  }
