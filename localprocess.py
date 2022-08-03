@@ -2,8 +2,8 @@ from subprocess import Popen,PIPE, STDOUT
 #import subprocess
 import time
 class process():
-    def __init__(self, dir) -> None:
-        self.p = Popen(["python", dir],
+    def __init__(self,  dir, functype="python") -> None:
+        self.p = Popen([functype, dir],
                        stdin=PIPE,
                        stdout=PIPE,
                        stderr=PIPE,
