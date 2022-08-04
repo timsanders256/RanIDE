@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, session, json
+ï»¿from flask import Flask, render_template, request, redirect, url_for, session, json
 import time, random
 app = Flask(__name__)
-app.secret_key = 'komejikoishi'  #¹ÅÃ÷µØÁµ
+app.secret_key = 'komejikoishi'  #å¤æ˜åœ°æ‹
 
-@app.route('/') # homepage
+@app.route('/',methods = ['GET','POST']) # homepage
 def homepage():
-    return render_template('index.html')
+    if request.method == 'GET':
+        return render_template('index.html')
+    else :
+        print('postæˆåŠŸ')
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
