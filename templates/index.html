@@ -93,7 +93,7 @@
                         });
                     });
                     variables.forEach(item => {
-                        if(!(item in keywords) && !(item in builtins)) {
+                        if(!(keywords.includes(item)) && !(builtins.includes(item))) {
                             suggestions.push({
                                 label: item,
                                 kind: monaco.languages.CompletionItemKind.Variable,
