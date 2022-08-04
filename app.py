@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, json
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, json
 import time, random
 import buffer
 from werkzeug.routing import BaseConverter
@@ -17,6 +17,18 @@ import buffer
 def homepage():
     return render_template('index.html')
 
+@app.route('/runCode', methods=['GET', 'POST'])
+def runCode():
+    res = jsonify({})
+    res.headers['Access-Control-Allow-Origin'] = '*'
+    if request.method == 'POST':
+        # 测试代码（后端可根据自己需要更改），读取前端发送的代码
+        mycode = request.get_json()['code']
+        # mycode格式为str
+        print(type(mycode))
+        print(mycode)     
+    return res
+
 # upstream: from user to server
 # the frontend send 'GET' to this address
 # for the execution output from file 'filename' 
@@ -32,5 +44,7 @@ def example2(filename):
     if request.method == 'POST':
         pass
 
+
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    #app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True)

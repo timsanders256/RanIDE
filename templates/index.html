@@ -1,122 +1,338 @@
 <!DOCTYPE html>
 
 <head>
-  <title>RanIDE Demo</title>
-  <meta charset="UTF-8" />
-  <script src="static/vue.js" type="text/javascript"></script>
-  <script src="static/axios.js" type="text/javascript"></script>
-  <link rel="shortcut icon" href="static/img/ran.ico" type="image/x-icon" />
-  <link data-name="vs/editor/editor.main" rel="stylesheet" href="static/monaco-editor/min/vs/editor/editor.main.css">
-  <script src="static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
-  <script src="static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
-  <script src="static/monaco-editor/min/vs/editor/editor.main.js"></script>
-  <link
-    rel="stylesheet"
-    type="text/css"
-    href="static/index.css"
-  />
+	<title>RanIDE Demo</title>
+	<meta charset="UTF-8" />
+	<script src="/static/vue.js" type="text/javascript"></script>
+	<script src="/static/axios.js" type="text/javascript"></script>
+	<link rel="shortcut icon" href="/static/img/ran.ico" type="image/x-icon" />
+	<link data-name="vs/editor/editor.main" rel="stylesheet" href="/static/monaco-editor/min/vs/editor/editor.main.css">
+	<script src="/static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
+	<script src="/static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+	<script src="/static/monaco-editor/min/vs/editor/editor.main.js"></script>
+	<link rel="stylesheet" type="text/css" href="static/index.css" />
 </head>
+
 <body>
-  <main>
-    <div class="top">
-      <button class="topbutton" id="run" type="button">运行</button>
-    </div>
-    <div class="body">
-      <div class="left"></div>
-      <div class="main_ent">
-	    <div id="wrapper"></div>
-        <textarea id="terminal" spellcheck="false"></textarea>
-      </div>
-    </div>
-  </main>
-  <footer>
-    RanIDE 2022
-  </footer>
+	<main>
+		<div class="top">
+			<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
+		</div>
+		<div class="body">
+			<div class="left"></div>
+			<div class="main_ent">
+				<div id="wrapper"></div>
+				<textarea id="terminal" spellcheck="false"></textarea>
+			</div>
+		</div>
+	</main>
+	<footer>
+		RanIDE 2022
+	</footer>
 </body>
 
 <script type="text/javascript">
-    var login_page = new Vue({
-    el: "main",
-        data: {
-        },
-        methods: {      },
-        mounted: function() {
-            require.config({ paths: { 'vs': 'static/monaco-editor/min/vs' } });
-            require(['vs/editor/editor.main'], function () {
-                monaco.editor.background = 'black';
-                monaco.editor.foreground = 'black';
-                monaco.editor.defineTheme('darkTheme', {
-                    base: 'hc-black',
-                    inherit: true,
-                    rules: [{ background: '808080FF' }],
-                    colors: {
-                      'editors.foreground': '#f4f4f4',
-                      'editorSuggestWidget.foreground': 'white',
-                    }
-                }
-            );
-            monaco.editor.setTheme('darkTheme');
-            let keywords = ["False","None","True","and","as","assert","async","await","break","class","continue",
-                "def","del","elif","else","except","finally","for","from","global","if","import","in",
-                "is","lambda","nonlocal","not","or","pass","raise","return","try","while","with","yield",
-                "long","apply","basestring","buffer","cmp","coerce","execfile","file","intern","raw_input",
-                "reduce","reload","self","unichr","unicode","xrange","__dict__","__methods__","__members__",
-                "__class__","__bases__","__name__","__mro__","__subclasses__","__init__"];
-            let builtins = ["abs","aiter","all","any","anext","ascii","bin","bool","breakpoint","bytearray","bytes",
-                "callable","chr","classmethod","compile","complex","delattr","dict","dir","divmod","enumerate","eval",
-                "exec","filter","float","format","frozenset","getattr","globals","hasattr","hash","help","hex","id",
-                "input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
-                "object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
-                "slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
-            let reg_match = /([a-z,A-Z,_]+[.])*([a-z,A-Z,_]+)*\s*=/g;
-            monaco.languages.registerCompletionItemProvider('python', {
-                provideCompletionItems: function () {
-                    let text = editor.getValue();
-                    let variables = [];
-                    while (matches = reg_match.exec(text)) {
-                        variables.push(matches[2]);
-                    }
-                    variables = [...new Set(variables)];
-                    let suggestions = [];
-                    keywords.forEach(item => {
-                        suggestions.push({
-                            label: item,
-                            kind: monaco.languages.CompletionItemKind.Keyword,
-                            insertText: item
-                        });
-                    });
-                    builtins.forEach(item => {
-                        suggestions.push({
-                            label: item,
-                            kind: monaco.languages.CompletionItemKind.Method,
-                            insertText: item
-                        });
-                    });
-                    variables.forEach(item => {
-                        if(!(keywords.includes(item)) && !(builtins.includes(item))) {
-                            suggestions.push({
-                                label: item,
-                                kind: monaco.languages.CompletionItemKind.Variable,
-                                insertText: item
-                            });
-                        }
-                    });
-                    return {
-                        suggestions:suggestions
-                    };
-                },
-            });
-            var editor = monaco.editor.create(document.getElementById('wrapper'), {
-                value: "",
-                language: 'python',
-                automaticLayout: true,
-                wordBasedSuggestions: true,
-                roundedSelection: false,
-                scrollBeyondLastLine: false,
-                readOnly: false,
-                theme: 'darkTheme'
-            });
-        });
-        }
-    });
+	var login_page = new Vue({
+		el: "main",
+		data: {
+			editor: null,
+		},
+
+		methods: {
+			// 测试，获取文本内容
+			// 测试，运行代码
+			runCode() {
+				const code = this.editor.getValue()
+				axios({
+					method: 'POST',
+					url: 'http://127.0.0.1:5000/runCode',
+					data: {
+						code: code,
+					}
+				})
+			},
+			//添加断点
+			async addBreakPoint(line) {
+				let model = this.editor.getModel()
+				if (!model) return
+				let value = { range: new monaco.Range(line, 1, line, 1), options: { isWholeLine: true, linesDecorationsClassName: 'breakpoints' } }
+				model.deltaDecorations([], [value])
+			},
+			//删除断点，如果指定了line，删除指定行的断点，否则删除当前model里面的所有断点
+			async removeBreakPoint(line) {
+				let model = this.editor.getModel()
+				if (!model) return
+				let decorations
+				let ids = []
+				if (line !== undefined) {
+					decorations = this.editor.getLineDecorations(line)
+				} else {
+					decorations = this.editor.getAllDecorations()
+				}
+				for (let decoration of decorations) {
+					if (decoration.options.linesDecorationsClassName === 'breakpoints') {
+						ids.push(decoration.id)
+					}
+				}
+				if (ids && ids.length) {
+					model.deltaDecorations(ids, [])
+				}
+			},
+			//判断该行是否存在断点
+			hasBreakPoint(line) {
+				let decorations = this.editor.getLineDecorations(line)
+				for (let decoration of decorations) {
+					if (decoration.options.linesDecorationsClassName === 'breakpoints') {
+						return true
+					}
+				}
+				return false
+			},
+			//添加一个伪breakpoint
+			addFakeBreakPoint(line) {
+				let model = this.editor.getModel()
+				if (!model) return
+				let value = { range: new monaco.Range(line, 1, line, 1), options: { isWholeLine: true, linesDecorationsClassName: 'breakpoints-fake' } }
+				model.deltaDecorations([], [value])		
+			},
+			//删除所有的伪breakpoint
+			removeFakeBreakPoint() {
+				let model = this.editor.getModel()
+				if (!model) return
+				let decorations
+				let ids = []
+				linenum=model.getLineCount()
+				decorations = model.getAllDecorations()
+				for (let decoration of decorations) {
+					if (decoration.options.linesDecorationsClassName === 'breakpoints-fake') {
+						ids.push(decoration.id)
+					}
+				}
+				if (ids && ids.length) {
+					model.deltaDecorations(ids, [])
+				}
+			},
+			isPythonEditor() {
+				return this.editor.getModel().getLanguageId() === 'python'
+			},
+			insertContent(text) {
+				if (this.editor) {
+					let selection = this.editor.getSelection()
+					let range = new monaco.Range(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn)
+					let id = { major: 1, minor: 1 }
+					let op = { identifier: id, range: range, text: text, forceMoveMarkers: true }
+					this.editor.executeEdits(this.root, [op])
+					this.editor.focus()
+				}
+			},
+			trigger(id) {
+				if (!this.editor) return
+				this.editor.trigger('anyString', id)
+			},
+			//这个函数是从网上找的，用于自定义一个TextModelService，替换原先的
+			getTextModelService() {
+				return {
+					createModelReference(uri) {
+						const model = {
+							load() {
+								return Promise.resolve(model)
+							},
+							dispose() {
+							},
+							textEditorModel: monaco.editor.getModel(uri)
+						}
+						return Promise.resolve({
+							object: model,
+							dispose() {
+							}
+						})
+					}
+				}
+			},
+			//这个两个方法是为了替换CodeEditorService，可以看出和上面的实现不一样，区别在哪里呢
+			//本来也是打算按照上面的方法来做的，但是也看到了上面的方法需要定义各种需要用到的方法，你得很理解这个Service才可以自己定义啊
+			//这个就不需要了，只通过原型修改了两个相关的方法，然后其他的就不需要关心了
+			//上面的好处是在创建editor的时候使用上面的service代替，只影响替换了的editor，下面这个直接影响了所有的editor
+			//具体使用什么方法可以自己考量，我这个service采用了这种方法，主要是因为自定义的service各种报错，失败了，，，
+			initGoToDefinitionCrossModels() {
+				let self = this
+				StandaloneCodeEditorServiceImpl.prototype.findModel = function (editor, resource) {
+					let model = null
+					if (resource !== null) {
+						model = monaco.editor.getModel(resource)
+					}
+					return model
+				}
+
+				StandaloneCodeEditorServiceImpl.prototype.doOpenEditor = function (editor, input) {
+					//这个this.findModel调用的是StandaloneCodeEditorServiceImpl.prototype.findModel这个方法
+					let model = this.findModel(editor, input.resource)
+					if (model) {
+						editor.setModel(model)
+					} else {
+						return null
+					}
+					let selection = input.options.selection
+					if (selection) {
+						if (typeof selection.endLineNumber === 'number' && typeof selection.endColumn === 'number')
+							editor.setSelection(selection)
+						editor.revealRangeInCenter(selection, 1 /* Immediate */)
+					} else {
+						let pos = {
+							lineNumber: selection.startLineNumber,
+							column: selection.startColumn
+						}
+						editor.setPosition(pos)
+						editor.revealPositionInCenter(pos, 1 /* Immediate */)
+					}
+					editor.focus()
+				}
+				return editor
+			}
+
+
+		},
+		mounted: function () {
+			require.config({ paths: { 'vs': 'static/monaco-editor/min/vs' } });
+			require(['vs/editor/editor.main'], () => {
+				monaco.editor.background = 'black';
+				monaco.editor.foreground = 'black';
+				monaco.editor.defineTheme('darkTheme', {
+					base: 'hc-black',
+					inherit: true,
+					rules: [{ background: '808080FF' }],
+					colors: {
+						'editors.foreground': '#f4f4f4',
+						'editorSuggestWidget.foreground': 'white',
+					}
+				});
+				monaco.editor.setTheme('darkTheme');
+				let keywords = ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
+					"def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
+					"is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield",
+					"long", "apply", "basestring", "buffer", "cmp", "coerce", "execfile", "file", "intern", "raw_input",
+					"reduce", "reload", "self", "unichr", "unicode", "xrange", "__dict__", "__methods__", "__members__",
+					"__class__", "__bases__", "__name__", "__mro__", "__subclasses__", "__init__"];
+				let builtins = ["abs", "aiter", "all", "any", "anext", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes",
+					"callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod", "enumerate", "eval",
+					"exec", "filter", "float", "format", "frozenset", "getattr", "globals", "hasattr", "hash", "help", "hex", "id",
+					"input", "int", "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max", "memoryview", "min", "next",
+					"object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr",
+					"slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip", "__import__"];
+				monaco.languages.registerCompletionItemProvider('python', {
+					provideCompletionItems: function () {
+						let suggestions = [];
+						keywords.forEach(item => {
+							suggestions.push({
+								label: item,
+								kind: monaco.languages.CompletionItemKind.Keyword,
+								insertText: item
+							});
+						})
+						builtins.forEach(item => {
+							suggestions.push({
+								label: item,
+								kind: monaco.languages.CompletionItemKind.Method,
+								insertText: item
+							});
+						})
+						return { suggestions: suggestions };
+					},
+				});
+				// 默认文本
+				var defaultCode = '';
+				var model = monaco.editor.createModel(defaultCode, 'python');
+				var editor = monaco.editor.create(document.getElementById('wrapper'), {
+					value: "",
+					language: 'python',
+					wordBasedSuggestions: true,
+					roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: 'darkTheme',
+					model: model
+				});
+
+				this.editor = editor;
+				this.editor.onDidChangeModelContent((event) => {
+					let model = this.editor.getModel()
+					// console.log('debug151')
+					//必须在nextTick处理，不然getPosition返回的位置有问题
+					this.$nextTick(() => {
+						//获取当前的鼠标位置
+						let pos = this.editor.getPosition()
+						if (pos) {
+							//获取当前的行
+							let line = pos.lineNumber
+							//如果当前行的内容为空，删除断点（空行不允许设置断点）
+							if (this.editor.getModel().getLineContent(line).trim() === '') {
+								// this.removeBreakPoint(line)
+							} else {
+								//如果当前行存在断点，删除多余的断点只保留一个
+								if (this.hasBreakPoint(line)) {
+									this.removeBreakPoint(line)
+									this.addBreakPoint(line)
+								}
+							}
+						}
+					})
+				})
+				this.editor.onMouseDown((e) => {
+					//这里只允许python编辑器添加breakpoint，如果你想在mousedown里面做点别的
+					if (!this.isPythonEditor()) return
+					//这里限制了一下点击的位置，只有点击breakpoint应该出现的位置，才会创建，其他位置没反应
+					if (e.target.detail && e.target.detail.offsetX && e.target.detail.offsetX >= 0 && e.target.detail.offsetX <= 10) {
+						let line = e.target.position.lineNumber
+						//空行不创建
+						if (this.editor.getModel().getLineContent(line).trim() === '') {
+							return
+						}
+						//如果点击的位置没有的话创建breakpoint，有的话，删除
+						if (!this.hasBreakPoint(line)) {
+							//console.log(this)
+							this.addBreakPoint(line)
+						} else {
+							this.removeBreakPoint(line)
+						}
+						//如果存在上个位置，将鼠标移到上个位置，否则使editor失去焦点
+						if (this.lastPosition) {
+							this.editor.setPosition(this.lastPosition)
+						} else {
+							document.activeElement.blur()
+						}
+					}
+					//更新lastPosition为当前鼠标的位置（只有点击编辑器里面的内容的时候）
+					if (e.target.type === 6 || e.target.type === 7) {
+						this.lastPosition = this.editor.getPosition()
+					}
+				})
+				//调用initGoToDefinitionCrossModels方法
+				//this.editor.multiplemodelsearch( (e) => {this.initGoToDefinitionCrossModels()} )
+				this.editor.initGoToDefinitionCrossModels
+
+				this.editor.onMouseMove((e) => {
+					if (!this.isPythonEditor()) return
+					this.removeFakeBreakPoint()
+					let line = e.target.position.lineNumber
+					if (this.hasBreakPoint(line)) return
+					//this.removeFakeBreakPoint()
+					if (e.target.detail && e.target.detail.offsetX && e.target.detail.offsetX >= 0 && e.target.detail.offsetX <= 10) {
+						let line = e.target.position.lineNumber
+						//console.log("行数为：",line)
+						this.addFakeBreakPoint(line)
+					}
+				})
+				this.editor.onMouseLeave(() => {
+					this.removeFakeBreakPoint()
+				})
+				//这个是因为鼠标放在breakpoint的位置，然后焦点在editor里面，点击enter的话，出现好多伪breakpoint，emmmm，我也不知道怎么回事，没办法，按enter键的话，强制删除所有的伪breakpoint
+				this.editor.onKeyDown((e) => {
+					if (e.code === 'Enter') {
+						this.removeFakeBreakPoint()
+					}
+				})
+			});
+		}
+	});
+
 </script>
