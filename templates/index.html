@@ -68,24 +68,42 @@
                 "input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
                 "object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
                 "slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+            let reg_match = /([a-z,A-Z,_]+[.])*([a-z,A-Z,_]+)*\s*=/g;
             monaco.languages.registerCompletionItemProvider('python', {
                 provideCompletionItems: function () {
+                    let text = editor.getValue();
+                    let variables = [];
+                    while (matches = reg_match.exec(text)) {
+                        variables.push(matches[2]);
+                    }
+                    variables = [...new Set(variables)];
                     let suggestions = [];
                     keywords.forEach(item => {
                         suggestions.push({
-                          label: item,
-                          kind: monaco.languages.CompletionItemKind.Keyword,
-                          insertText: item
+                            label: item,
+                            kind: monaco.languages.CompletionItemKind.Keyword,
+                            insertText: item
                         });
-                    })
+                    });
                     builtins.forEach(item => {
                         suggestions.push({
-                          label: item,
-                          kind: monaco.languages.CompletionItemKind.Method,
-                          insertText: item
+                            label: item,
+                            kind: monaco.languages.CompletionItemKind.Method,
+                            insertText: item
                         });
-                    })
-                    return {   suggestions:suggestions    };
+                    });
+                    variables.forEach(item => {
+                        if(!(item in keywords) && !(item in builtins)) {
+                            suggestions.push({
+                                label: item,
+                                kind: monaco.languages.CompletionItemKind.Variable,
+                                insertText: item
+                            });
+                        }
+                    });
+                    return {
+                        suggestions:suggestions
+                    };
                 },
             });
             var editor = monaco.editor.create(document.getElementById('wrapper'), {
