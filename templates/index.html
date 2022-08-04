@@ -19,7 +19,7 @@
 <body>
   <main>
     <div class="top">
-      <button class="topbutton" id="run" type="button">运行</button>
+      <button class="topbutton" id="run" type="button" @click="runCode">运行</button>
     </div>
     <div class="body">
       <div class="left"></div>
@@ -41,6 +41,18 @@
 			editor: null,
         },
         methods: {
+            // 测试，获取文本内容
+            // 测试，运行代码
+            runCode(){
+                const code = this.editor.getValue()
+                axios({
+                    method: 'POST',
+                    url: 'http://127.0.0.1:5000/runCode',
+                    data:{
+                        code: code,
+                    }
+                })
+            },
             //添加断点
             async addBreakPoint (line) {
               let model = this.editor.getModel()
@@ -199,4 +211,5 @@
         	});
         }
     });
+
 </script>
