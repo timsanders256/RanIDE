@@ -79,6 +79,7 @@ div[class="main_ent"] {
 #wrapper {
     height: calc(100vh - 200px);
 	width: calc(100vw - 200px);
+    min-height: 40px;
     flex-grow: 1;
     font-family: 'Courier New', Courier, monospace;
     line-height: 24px;
