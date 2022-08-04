@@ -8,7 +8,8 @@ body {
     background: #252526;
     display: flex;
     flex-direction: column;
-    justify-content: stretch; /* y direction */
+    justify-content: stretch;
+    /* y direction */
     margin: 0;
 }
 
@@ -29,11 +30,11 @@ div[class="top"] {
     padding-right: 6px;
     width: 100vw;
     background: #404040;
-    box-shadow:0 0 16px rgba(0,0,0,0.9);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
     z-index: 10;
 }
 
-div[class="top"]>button[class="topbutton"]{
+div[class="top"]>button[class="topbutton"] {
     height: 24px;
     width: 40px;
     border: 0;
@@ -41,9 +42,11 @@ div[class="top"]>button[class="topbutton"]{
     background: #606060;
     color: white;
 }
+
 div[class="top"]>button[class="topbutton"]:hover {
     background: #505050;
 }
+
 div[class="top"]>button[class="topbutton"]:active {
     background: #404040;
 }
@@ -62,7 +65,7 @@ div[class="left"] {
     min-width: 200px;
     height: auto;
     background-color: #606060;
-    box-shadow:0 0 16px rgba(0,0,0,0.9);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
     z-index: 9;
 }
 
@@ -104,11 +107,11 @@ footer {
     width: 100vw;
     font-family: 'Courier New', Courier, monospace;
     background: #404040;
-    box-shadow:0 0 16px rgba(0,0,0,0.9);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
     z-index: 10;
 }
 
-.breakpoints{
+.breakpoints {
     background: red;
     background: radial-gradient(circle at 3px 3px, white, red);
     width: 10px !important;
@@ -116,4 +119,13 @@ footer {
     left: 0px !important;
     top: 3px;
     border-radius: 5px;
-  }
+}
+
+.breakpoints-fake {
+    background: green; 
+    width: 10px !important;
+    height: 10px !important;
+    left: 0px !important;
+    top: 3px;
+    border-radius: 5px;
+}
