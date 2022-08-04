@@ -20,8 +20,12 @@ class process():
                        bufsize=1, close_fds=ON_POSIX)
         self.queue = Queue()
         self.thread = Thread(target=enqueue_output, args=(self.p.stdout, self.queue))
+        self.errqueue = Queue()
+        self.errthread = Thread(target=enqueue_output, args=(self.p.stderr, self.errqueue))
         self.thread.daemon = True
+        self.errthread.daemon = True
         self.thread.start()
+        self.errthread.start()
         
     def input_str(self, str_in):
         if(self.p.poll() is not None):
@@ -37,6 +41,15 @@ class process():
     def get_output(self):
         try: 
             line = self.queue.get_nowait()
+        except Empty:
+            pass
+            # no output yet
+        else:
+            return line.strip()
+    
+    def get_errmsg(self):
+        try: 
+            line = self.errqueue.get_nowait()
         except Empty:
             pass
             # no output yet
