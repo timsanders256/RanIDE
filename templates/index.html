@@ -29,6 +29,21 @@
 	<footer>
 		RanIDE 2022
 	</footer>
+  <main>
+    <div class="top">
+      <button class="topbutton" id="run" type="button" @click="runCode">运行</button>
+    </div>
+    <div class="body">
+      <div class="left"></div>
+      <div class="main_ent">
+	      <div id="wrapper"></div>
+        <textarea id="terminal" spellcheck="false"></textarea>
+      </div>
+    </div>
+  </main>
+  <footer>
+    RanIDE 2022
+  </footer>
 </body>
 
 <script type="text/javascript">
@@ -100,6 +115,58 @@
 				}
 			},
 			isPythonEditor() {
+        },
+        methods: {
+            // 测试，获取文本内容
+            // 测试，运行代码
+            runCode(){
+                const code = this.editor.getValue()
+                axios({
+                    method: 'POST',
+                    url: 'http://127.0.0.1:5000/runCode',
+                    data:{
+                        code: code,
+                    }
+                })
+            },
+            //添加断点
+            async addBreakPoint (line) {
+              let model = this.editor.getModel()
+              if (!model) return
+              let value = {range: new monaco.Range(line, 1, line, 1), options: { isWholeLine: true, linesDecorationsClassName: 'breakpoints' }}
+              model.deltaDecorations([], [value])
+            },
+            //删除断点，如果指定了line，删除指定行的断点，否则删除当前model里面的所有断点
+            async removeBreakPoint (line) {
+              let model = this.editor.getModel()
+              if (!model) return
+              let decorations
+              let ids = []
+              if (line !== undefined) {
+                decorations = this.editor.getLineDecorations(line)
+              } else {
+                decorations = this.editor.getAllDecorations()
+              }
+              for (let decoration of decorations) {
+                if (decoration.options.linesDecorationsClassName === 'breakpoints') {
+                  ids.push(decoration.id)
+                }
+              }
+              if (ids && ids.length) {
+                model.deltaDecorations(ids, [])
+              }
+            },
+            //判断该行是否存在断点
+            hasBreakPoint (line) {
+              let decorations = this.editor.getLineDecorations(line)
+              for (let decoration of decorations) {
+                if (decoration.options.linesDecorationsClassName === 'breakpoints') {
+                  return true
+                }
+              }
+              return false
+            },
+			isPythonEditor () {
 				return this.editor.getModel().getLanguageId() === 'python'
 			},
 			insertContent(text) {
@@ -322,4 +389,8 @@
 			});
 		}
 	});
+        	});
+        }
+    });
+
 </script>
