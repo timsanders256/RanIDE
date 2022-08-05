@@ -24,7 +24,7 @@
 			<div class="left"></div>
 			<div class="main_ent">
 				<div id="wrapper"></div>
-				<textarea id="terminal" spellcheck="false"></textarea>
+				<textarea id="terminal" spellcheck="false" @keydown.enter="inputTerminal" v-model="terminal"></textarea>
 			</div>
 		</div>
 	</main>
@@ -38,10 +38,58 @@
 		el: "main",
 		data: {
 			editor: null,
-			filename: null
+			filename: null,
+			terminal: '',
+			timer: null,
 		},
 
 		methods: {
+			// 测试，终端显示
+			inputTerminal(e){
+				// 获取终端内容
+				let terminal = this.terminal.split('\n')
+				// 获取最后一行内容
+				let input = terminal.pop()
+				// 发送输入信息
+				const path = '/input'
+				let dataT = {
+					filename: this.filename,
+					input: input,
+				}
+				axios.post(path, dataT)
+				.then((response) => {
+					if(response.data === 'success'){
+						console.log(input)
+						alert('输入成功')
+						// this.myTimer()
+					}
+				});
+			},
+			// 测试，定时器发送output的post请求
+			myTimer(){
+				this.timer = setInterval(() => {
+					this.outputTerminal();
+				}, 1000);
+			},
+			// 测试，清除定时器
+			clearTime(){
+				clearInterval(this.timer)
+			},
+			// 测试，发送output的post请求
+			outputTerminal(){
+				// 发送输入信息
+				const path = '/output';
+				let dataT = {
+					filename: this.filename,
+					type: 'output',
+				}
+				axios.post(path, dataT)
+				.then((response) => {
+					if(response.data === 'success'){
+						console.log('成功接收output')
+					}
+				})
+			},
 			// 测试，获取文本内容
 			// 测试，运行代码
 			runCode() {},

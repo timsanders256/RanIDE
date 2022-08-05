@@ -68,6 +68,26 @@ def example2(filename):
     if request.method == 'POST':
         pass
 
+# inputProcess，outputProcess函数为测试代码，后端可删除
+# input process
+@app.route('/input', methods=['POST', 'GET'])
+def inputProcess():
+    if request.method == 'POST':
+        path = request.get_json()['filename']
+        myinput = request.get_json()['input']
+        return 'success'
+    pass
+
+# output process
+@app.route('/output', methods=['POST', 'GET'])
+def outputProcess():
+    if request.method == 'POST':
+        path = request.get_json()['filename']
+        mytype = request.get_json()['type']
+        return 'success'
+    pass
+
+
 if __name__ == '__main__':
     #app.run(debug=True, host="0.0.0.0")
     app.run(debug=True)
