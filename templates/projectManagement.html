@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<head>
+    <title>RanIDE Demo</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="/static/vue.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="/static/axios.js" type="text/javascript"></script>
+    <link rel="shortcut icon" href="/static/img/ran.ico" type="image/x-icon" />
+    <link data-name="vs/editor/editor.main" rel="stylesheet" href="/static/monaco-editor/min/vs/editor/editor.main.css">
+    <script src="/static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
+    <script src="/static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+    <script src="/static/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/projectManagement.css" />
+</head>
+
+<body>
+    <main>
+
+        <el-container class="layout-container-demo" style="height: 500px">
+            <el-aside width="150px">
+                <el-scrollbar height="400px">
+                    <el-button type="primary" round v-for="item in aside_items" class="scrollbar-demo-item">{[item]}
+                    </el-button>
+                </el-scrollbar>
+            </el-aside>
+
+            <el-container>
+                <el-header style="text-align: left; font-size: 30px">
+                    <div class="toolbar">
+                        <h1>全部项目</h1>
+                    </div>
+                </el-header>
+
+                <el-main>
+                    <p>{[projectnum]}个项目</p>
+                    <el-tabs type="border-card">
+                        <el-tab-pane label="全部项目">
+                            <el-scrollbar height="600px">
+                                <el-form :model="form" label-width="120px">
+                                    <el-form-item>
+                                        <div v-for=" [item,idx] in project_items">
+                                            <el-button class="project_item" type="primary" @click=goToProject(idx)>
+                                                {[item["name"]]}&emsp;&emsp;&emsp;&emsp;&emsp;{[item["creator"]]}&emsp;&emsp;&emsp;&emsp;&emsp;{[item["time"]]}
+                                            </el-button>
+                                        </div>
+                                    </el-form-item>
+                                </el-form>
+                                <!-- <el-button type="primary" round v-for="item in project_items" class="project_item">
+                                    {[item["name"]]}
+                                    &emsp;&emsp;&emsp;&emsp;&emsp;{[item["creator"]]}&emsp;&emsp;&emsp;&emsp;&emsp;{[item["time"]]}
+                                </el-button> -->
+                            </el-scrollbar>
+                        </el-tab-pane>
+                        <el-tab-pane label="我创建的">我创建的</el-tab-pane>
+                        <el-tab-pane label="我参与的">我参与的</el-tab-pane>
+                    </el-tabs>
+                </el-main>
+            </el-container>
+        </el-container>
+    </main>
+</body>
+
+<script type="text/javascript">
+    var projectManagementpage = new Vue({
+        delimiters: ["{[", "]}"],
+        el: "main",
+        data: {
+            message: "123456",
+            aside_items: ["项目", "设置"],
+            projectnum: 1,
+            project_items: [[{ "name": "Python Project", "time": "2022-08-05", "creator": "张三" },0]],
+            form: {}
+        },
+        methods: {
+            goToProject(idx){
+                let path = "/";
+                console.log(idx);
+                const dat = this.project_items[idx][0];
+                axios.post(path,dat).then(
+                    (receive) => {
+						//console.log(dat);
+						if(receive.data === 'done') {
+							alert('跳转成功。');
+						} else {
+							alert('请检查网络。');
+						}
+					}
+                );
+            }
+        },
+        mounted: function () {
+        }
+    });
+</script>

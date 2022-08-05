@@ -15,7 +15,7 @@ app.secret_key = 'komejikoishi'
 app.url_map.converters['regex'] = RegexConverter
 import buffer
 
-@app.route('/') # homepage
+@app.route('/file1', methods=['GET', 'POST']) # 文件编辑页面
 def homepage():
     return 'This is the homepage.'
 
@@ -68,6 +68,19 @@ def example2(filename):
     if request.method == 'POST':
         pass
 
+<<<<<<< Updated upstream
+=======
+# 项目管理页面（首页）
+@app.route('/', methods=['POST', 'GET'])
+def projectmanagement():
+    if request.method == 'POST':
+        tmp = request.get_json()["name"]
+        print(tmp)
+        return 'done'
+    elif request.method == 'GET':
+        return render_template('projectManagement.html')
+
+>>>>>>> Stashed changes
 if __name__ == '__main__':
     #app.run(debug=True, host="0.0.0.0")
     app.run(debug=True)
