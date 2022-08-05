@@ -9,8 +9,7 @@ body {
     background: #252526;
     display: flex;
     flex-direction: column;
-    justify-content: stretch;
-    /* y direction */
+    justify-content: stretch; /* y direction */
     margin: 0;
 }
 
@@ -31,11 +30,11 @@ div[class="top"] {
     padding-right: 6px;
     width: 100vw;
     background: #404040;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
+    box-shadow:0 0 16px rgba(0,0,0,0.9);
     z-index: 10;
 }
 
-div[class="top"]>button[class="topbutton"] {
+div[class="top"]>button[class="topbutton"]{
     height: 24px;
     width: 40px;
     border: 0;
@@ -66,7 +65,7 @@ div[class="left"] {
     min-width: 200px;
     height: auto;
     background-color: #606060;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
+    box-shadow:0 0 16px rgba(0,0,0,0.9);
     z-index: 9;
 }
 
@@ -110,7 +109,7 @@ footer {
     width: 100vw;
     font-family: 'Courier New', Courier, monospace;
     background: #404040;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
+    box-shadow:0 0 16px rgba(0,0,0,0.9);
     z-index: 10;
 }
 
