@@ -219,7 +219,7 @@
 					"input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
 					"object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
 					"slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
-				let reg_match = /([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/g;
+				let reg_match = /^\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/gm;
 				monaco.languages.registerCompletionItemProvider('python', {
 					provideCompletionItems: function () {
 						let text = editor.getValue();
