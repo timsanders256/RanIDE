@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, json
 import time, random
 import buffer
+import logging
+import localprocess
 from werkzeug.routing import BaseConverter
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -15,21 +17,43 @@ import buffer
 
 @app.route('/') # homepage
 def homepage():
-    return render_template('index.html')
+    return 'This is the homepage.'
 
 @app.route('/runCode', methods=['GET', 'POST'])
 def runCode():
-    res = jsonify({})
-    res.headers['Access-Control-Allow-Origin'] = '*'
+    global taskmgr
     if request.method == 'POST':
-        # 测试代码（后端可根据自己需要更改），读取前端发送的代码
-        mycode = request.get_json()['code']
-        # mycode格式为str
-        print(type(mycode))
-        print(mycode)     
-    return res
+        path = request.get_json()['filename']
+        type = request.get_json()['type']
+        if(path in taskmgr.keys()):
+            # lazy-doing
+            if(taskmgr[path].state_running() == False):
+                taskmgr[path] = localprocess.process(path, type)
+                return 'done'
+            else:
+                return 'wait'
+        taskmgr[path] = localprocess.process(path, type)
+        return 'done'
 
-# upstream: from user to server
+@app.route('/saveCode', methods=['GET', 'POST'])
+def saveCode():
+    if request.method == 'POST':
+        path = request.get_json()['filename']
+        mycode = request.get_json()['code']
+        with open(path, 'w') as f:
+            mycode = mycode.split('\n')
+            f.writelines(mycode)
+            pass
+        return 'done'
+
+# upstream: from server to user
+# the frontend send 'GET' to this address
+# for the execution output from file 'filename' 
+@app.route('/<regex(".*"):filename>/edit')
+def editorRenderer(filename):
+    return render_template('index.html', filename=filename)
+
+# upstream: from server to user
 # the frontend send 'GET' to this address
 # for the execution output from file 'filename' 
 @app.route('/<regex(".*"):filename>/upstream', methods=['POST', 'GET'])
@@ -37,13 +61,12 @@ def example(filename):
     if request.method == 'GET':
         return "filename: %s" % (filename)
 
-# downstream: from server to user
+# downstream: from user to server
 # keyboard input from browser
 @app.route('/<regex(".*"):filename>/downstream', methods=['POST', 'GET'])
 def example2(filename):
     if request.method == 'POST':
         pass
-
 
 if __name__ == '__main__':
     #app.run(debug=True, host="0.0.0.0")
