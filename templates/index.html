@@ -10,12 +10,14 @@
 	<script src="/static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
 	<script src="/static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
 	<script src="/static/monaco-editor/min/vs/editor/editor.main.js"></script>
-	<link rel="stylesheet" type="text/css" href="static/index.css" />
+	<link rel="stylesheet" type="text/css" href="/static/index.css" />
 </head>
 
 <body>
+	<script> window.filename = '{{filename}}' </script>
 	<main>
 		<div class="top">
+			<button class="topbutton" id="run" type="button" @click="saveCode">保存</button>
 			<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
 		</div>
 		<div class="body">
@@ -36,20 +38,33 @@
 		el: "main",
 		data: {
 			editor: null,
+			filename: null
 		},
 
 		methods: {
 			// 测试，获取文本内容
 			// 测试，运行代码
 			runCode() {
-				const code = this.editor.getValue()
-				axios({
-					method: 'POST',
-					url: 'http://127.0.0.1:5000/runCode',
-					data: {
-						code: code,
+				
+			},
+			saveCode() {
+				let code = this.editor.getValue();
+				const path = "/saveCode";
+				let dataT = {
+					filename: this.filename,
+					code: code,
+				};
+				axios.post(path, dataT)
+				.then(
+					(receive) => {
+						console.log(code);
+						if(receive.data === 'done') {
+							alert('保存成功。');
+						} else {
+							alert('请检查网络。');
+						}
 					}
-				})
+				);
 			},
 			//添加断点
 			async addBreakPoint(line) {
@@ -193,7 +208,10 @@
 
 		},
 		mounted: function () {
-			require.config({ paths: { 'vs': 'static/monaco-editor/min/vs' } });
+			// get filename from 
+			this.filename = window.filename;
+
+			require.config({ paths: { 'vs': '/static/monaco-editor/min/vs' } });
 			require(['vs/editor/editor.main'], () => {
 				monaco.editor.background = 'black';
 				monaco.editor.foreground = 'black';
@@ -219,6 +237,7 @@
 					"input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
 					"object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
 					"slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+				// 多行正则匹配
 				let reg_match = /^\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/gm;
 				monaco.languages.registerCompletionItemProvider('python', {
 					provideCompletionItems: function () {
