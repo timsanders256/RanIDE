@@ -39,19 +39,21 @@ class process():
         return True
     
     def get_output(self):
+        if(self.p.poll() is not None):
+            return -1
         try: 
             line = self.queue.get_nowait()
         except Empty:
-            pass
-            # no output yet
+            return 0
         else:
             return line.strip()
     
     def get_errmsg(self):
+        if(self.p.poll() is not None):
+            return -1
         try: 
             line = self.errqueue.get_nowait()
         except Empty:
-            pass
-            # no output yet
+            return 0
         else:
             return line.strip()
