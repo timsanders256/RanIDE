@@ -207,20 +207,27 @@
 					}
 				});
 				monaco.editor.setTheme('darkTheme');
-				let keywords = ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
-					"def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
-					"is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield",
-					"long", "apply", "basestring", "buffer", "cmp", "coerce", "execfile", "file", "intern", "raw_input",
-					"reduce", "reload", "self", "unichr", "unicode", "xrange", "__dict__", "__methods__", "__members__",
-					"__class__", "__bases__", "__name__", "__mro__", "__subclasses__", "__init__"];
-				let builtins = ["abs", "aiter", "all", "any", "anext", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes",
-					"callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod", "enumerate", "eval",
-					"exec", "filter", "float", "format", "frozenset", "getattr", "globals", "hasattr", "hash", "help", "hex", "id",
-					"input", "int", "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max", "memoryview", "min", "next",
-					"object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr",
-					"slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip", "__import__"];
+				let keywords = ["False","None","True","and","as","assert","async","await","break","class","continue",
+					"def","del","elif","else","except","finally","for","from","global","if","import","in",
+					"is","lambda","nonlocal","not","or","pass","raise","return","try","while","with","yield",
+					"long","apply","basestring","buffer","cmp","coerce","execfile","file","intern","raw_input",
+					"reduce","reload","self","unichr","unicode","xrange","__dict__","__methods__","__members__",
+					"__class__","__bases__","__name__","__mro__","__subclasses__","__init__"];
+				let builtins = ["abs","aiter","all","any","anext","ascii","bin","bool","breakpoint","bytearray","bytes",
+					"callable","chr","classmethod","compile","complex","delattr","dict","dir","divmod","enumerate","eval",
+					"exec","filter","float","format","frozenset","getattr","globals","hasattr","hash","help","hex","id",
+					"input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
+					"object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
+					"slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+				let reg_match = /([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/g;
 				monaco.languages.registerCompletionItemProvider('python', {
 					provideCompletionItems: function () {
+						let text = editor.getValue();
+						let variables = [];
+						while (matches = reg_match.exec(text)) {
+							variables.push(matches[2]);
+						}
+						variables = [...new Set(variables)];
 						let suggestions = [];
 						keywords.forEach(item => {
 							suggestions.push({
@@ -228,15 +235,26 @@
 								kind: monaco.languages.CompletionItemKind.Keyword,
 								insertText: item
 							});
-						})
+						});
 						builtins.forEach(item => {
 							suggestions.push({
 								label: item,
 								kind: monaco.languages.CompletionItemKind.Method,
 								insertText: item
 							});
-						})
-						return { suggestions: suggestions };
+						});
+						variables.forEach(item => {
+							if(!(keywords.includes(item)) && !(builtins.includes(item))) {
+								suggestions.push({
+									label: item,
+									kind: monaco.languages.CompletionItemKind.Variable,
+									insertText: item
+								});
+							}
+						});
+						return {
+							suggestions:suggestions
+						};
 					},
 				});
 				// 默认文本
@@ -245,6 +263,7 @@
 				var editor = monaco.editor.create(document.getElementById('wrapper'), {
 					value: "",
 					language: 'python',
+					automaticLayout: true,
 					wordBasedSuggestions: true,
 					roundedSelection: false,
 					scrollBeyondLastLine: false,
