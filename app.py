@@ -68,8 +68,7 @@ def example2(filename):
     if request.method == 'POST':
         pass
 
-<<<<<<< Updated upstream
-=======
+
 # 项目管理页面（首页）
 @app.route('/', methods=['POST', 'GET'])
 def projectmanagement():
@@ -80,7 +79,6 @@ def projectmanagement():
     elif request.method == 'GET':
         return render_template('projectManagement.html')
 
->>>>>>> Stashed changes
 if __name__ == '__main__':
     #app.run(debug=True, host="0.0.0.0")
     app.run(debug=True)
