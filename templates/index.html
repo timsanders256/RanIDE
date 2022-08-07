@@ -19,9 +19,10 @@
 	</script>
 	<main>
 		<div class="top">
-			<button class="topbutton" id="run" type="button" @click="saveCode">保存</button>
+			<button class="topbutton" id="save" type="button" @click="saveCode">保存</button>
 			<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
-			<button class="topbutton" id="run" type="button" @click="killCode">终止</button>
+			<button class="topbutton" id="debug" type="button" @click="debugCode">调试</button>
+			<button class="topbutton" id="kill" type="button" @click="killCode">终止</button>
 		</div>
 		<div class="body">
 			<div class="left"></div>
@@ -135,6 +136,33 @@
 					}
 				);
 			},
+			debugCode(){
+				let code = this.editor.getValue();
+				const path = "/debugCode";
+				// 读取断点位置
+				let breakpoints = [];
+				let model = this.editor.getModel();
+				let linenum = model.getLineCount();
+				for(let line = 1; line <= linenum; line++){
+					if(this.hasBreakPoint(line)){
+						breakpoints.push(line);
+					}
+				}
+				let dataT = {
+					filename: this.filename,
+					type: "python",
+					code: code,
+					breakpoints: breakpoints.join(",")
+				};
+				axios.post(path, dataT)
+				.then(
+					(receive) => {
+						if(receive.data === "done") {
+							alert("调试请求发送成功");
+						}
+					}
+				)
+			},
 			killCode() {
 				if(this.state != "running") {
 					alert('程序未运行。');
@@ -147,7 +175,7 @@
 				axios.post(path, dataT)
 				.then(
 					(receive) => {
-						if(receive.data == "done") {
+						if(receive.data === "done") {
 							this.clearTime();
 							this.state = 'done';
 							alert("已终止。");
@@ -318,7 +346,7 @@
 		
 			// get filename from 
 			this.filename = window.filename;
-			this.code = this.getCode();
+			// this.code = this.getCode();
 
 			require.config({ paths: { "vs": "/static/monaco-editor/min/vs" } });
 			require(["vs/editor/editor.main"], () => {

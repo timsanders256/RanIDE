@@ -48,6 +48,16 @@ def killCode():
             return 'done'
         else:
             return 'err'
+
+@app.route('/debugCode', methods=['GET', 'POST'])
+def debugCode():
+    if request.method == 'POST':
+        path = 'code\\' +  request.get_json()['filename']
+        mycode = request.get_json()['code']
+        type = request.get_json()['type']
+        # 当前断点集合为字符串组成的列表（行数从1开始）
+        breakpoints = request.get_json()['breakpoints'].split(',')
+        return 'done'
     
 @app.route('/<regex(".*"):filename>/edit')
 def editorRenderer(filename):
