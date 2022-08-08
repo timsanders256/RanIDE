@@ -51,12 +51,31 @@ def killCode():
 
 @app.route('/debugCode', methods=['GET', 'POST'])
 def debugCode():
+    global taskmgr
     if request.method == 'POST':
         path = 'code\\' +  request.get_json()['filename']
         mycode = request.get_json()['code']
         type = request.get_json()['type']
         # 当前断点集合为字符串组成的列表（行数从1开始）
         breakpoints = request.get_json()['breakpoints'].split(',')
+        # 在断点位置处加入pdb.set_trace()
+        if breakpoints[0] == '':
+            breakpoints = []
+        else:
+            breakpoints = [int(x) for x in breakpoints]
+        old = mycode
+        mycode = mycode.split('\n')
+        for i in breakpoints:
+            mycode[i-1] += ';pdb.set_trace()'
+        mycode = '\n'.join(mycode)
+        mycode = 'import pdb\n'+mycode
+        saveCodeFunc(path, mycode)
+        # 加入断点后开始运行
+        if path in taskmgr.keys():
+            taskmgr[path].kill()
+        taskmgr.pop(path, None)        
+        taskmgr[path] = localprocess.process(path, type)
+        saveCodeFunc(path, old)
         return 'done'
     
 @app.route('/<regex(".*"):filename>/edit')
