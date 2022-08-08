@@ -104,6 +104,7 @@ def inputProcess():
         input_str = '\n' + request.get_json()['input']
         if(path in taskmgr.keys()):
             taskmgr[path].input_str(input_str)
+            print(input_str)
             return 'done'
     return 'err'
 

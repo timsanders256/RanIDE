@@ -23,6 +23,10 @@
 			<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
 			<button class="topbutton" id="debug" type="button" @click="debugCode">调试</button>
 			<button class="topbutton" id="kill" type="button" @click="killCode">终止</button>
+			<button class="debugbutton" id="s" type="button" @click="debug_s">逐语句</button>
+			<button class="debugbutton" id="n" type="button" @click="debug_n">逐过程</button>
+			<button class="debugbutton" id="r" type="button" @click="debug_r">跳出函数</button>
+			<button class="debugbutton" id="c" type="button" @click="debug_c">跳出</button>
 		</div>
 		<div class="body">
 			<div class="left"></div>
@@ -93,6 +97,7 @@
 					if(response.data.value != 0 && response.data.value != -1) {
 						let el_term = document.getElementById("terminal");
 						el_term.value += response.data.value;
+                        el_term.value.replace(/\n/g, '<br/>')
 					}
 					if(response.data.value === -1 && this.state === "running") {
 						this.clearTime();
@@ -204,6 +209,74 @@
 					}
 				);
 			},
+            debug_s() {
+                let code = this.editor.getValue();
+				const path = "/input";
+				input = 's'
+                let dataT = {
+                    filename: this.filename,
+                    input: input,
+                };
+                axios.post(path, dataT)
+                    .then((response) => {
+                        if (response.data === "done") {
+                             //alert("单步成功。");
+                        } else {
+                            alert("请检查网络。");
+                        }
+                    });
+			},
+            debug_n() {
+                let code = this.editor.getValue();
+                const path = "/input";
+                input = 'n'
+                let dataT = {
+                    filename: this.filename,
+                    input: input,
+                };
+                axios.post(path, dataT)
+                    .then((response) => {
+                        if (response.data === "done") {
+                            //alert("单步成功。");
+                        } else {
+                            alert("请检查网络。");
+                        }
+                    });
+			},
+            debug_r() {
+                let code = this.editor.getValue();
+                const path = "/input";
+                input = 'r'
+                let dataT = {
+                    filename: this.filename,
+                    input: input,
+                };
+                axios.post(path, dataT)
+                    .then((response) => {
+                        if (response.data === "done") {
+                            //alert("单步成功。");
+                        } else {
+                            alert("请检查网络。");
+                        }
+                    });
+			},
+            debug_c() {
+                let code = this.editor.getValue();
+                const path = "/input";
+                input = 'c'
+                let dataT = {
+                    filename: this.filename,
+                    input: input,
+                };
+                axios.post(path, dataT)
+                    .then((response) => {
+                        if (response.data === "done") {
+                            //alert("单步成功。");
+                        } else {
+                            alert("请检查网络。");
+                        }
+                    });
+            },
 			//添加断点
 			async addBreakPoint(line) {
 				let model = this.editor.getModel()
