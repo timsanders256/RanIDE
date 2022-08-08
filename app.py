@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, json
 import localprocess
 from werkzeug.routing import BaseConverter
+import os
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
@@ -71,6 +72,10 @@ def editorRenderer(filename):
 def getCode():
     if request.method == 'POST':
         path = 'code\\' +  request.get_json()['filename']
+        code = ''
+        if not os.path.isfile(path):
+            f = open(path, 'w', encoding='utf-8')
+            f.close()
         with open(path, 'r', encoding='utf-8') as f:
             code = f.read()
         return code
