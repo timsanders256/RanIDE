@@ -158,7 +158,7 @@
 				.then(
 					(receive) => {
 						if (receive.data === "done") {
-                            this.myTimer();
+							this.myTimer();
                             this.state = "running";
                             document.getElementById("terminal").value = ("####### debugging #######\n");
 							alert("调试请求发送成功");

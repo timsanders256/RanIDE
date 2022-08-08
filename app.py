@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.url_map.converters['regex'] = RegexConverter
 
 def saveCodeFunc(path, code):
-    with open(path, 'w') as f:
+    with open(path, 'w+') as f:
             code = code.split('\r')
             f.writelines(code)
     return 'done'
@@ -54,6 +54,7 @@ def debugCode():
     global taskmgr
     if request.method == 'POST':
         path = 'code\\' +  request.get_json()['filename']
+        debugpath = 'debug\\' + request.get_json()['filename']
         mycode = request.get_json()['code']
         type = request.get_json()['type']
         # 当前断点集合为字符串组成的列表（行数从1开始）
@@ -66,16 +67,16 @@ def debugCode():
         old = mycode
         mycode = mycode.split('\n')
         for i in breakpoints:
-            mycode[i-1] += ';pdb.set_trace()'
+            mycode.insert(i-1,'pdb.set_trace()')
         mycode = '\n'.join(mycode)
         mycode = 'import pdb\n'+mycode
-        saveCodeFunc(path, mycode)
+        saveCodeFunc(path, old)
+        saveCodeFunc(debugpath,mycode)
         # 加入断点后开始运行
         if path in taskmgr.keys():
             taskmgr[path].kill()
         taskmgr.pop(path, None)        
-        taskmgr[path] = localprocess.process(path, type)
-        saveCodeFunc(path, old)
+        taskmgr[path] = localprocess.process(debugpath, type)
         return 'done'
     
 @app.route('/<regex(".*"):filename>/edit')
@@ -100,7 +101,7 @@ def getCode():
 def inputProcess():
     if request.method == 'POST':
         path = 'code\\' +  request.get_json()['filename']
-        input_str = request.get_json()['input']
+        input_str = '\n' + request.get_json()['input']
         if(path in taskmgr.keys()):
             taskmgr[path].input_str(input_str)
             return 'done'
@@ -119,6 +120,7 @@ def outputProcess():
         if(path in taskmgr.keys()):
             if(type_str == 'output'):
                 result['value'] = taskmgr[path].get_output()
+                print(result['value'])
                 return json.dumps(result)
             elif(type_str == 'errmsg'):
                 result['value'] = taskmgr[path].get_errmsg()
