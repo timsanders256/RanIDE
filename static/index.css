@@ -51,6 +51,24 @@ div[class="top"]>button[class="topbutton"]:active {
     background: #404040;
 }
 
+div[class="top"] > button[class="debugbutton"] {
+    height: 24px;
+    border: 0;
+    border-radius: 0;
+    background: #efefef;
+    color: black;
+    display:none
+}
+div[class="top"] > button[class="debugbutton"]:hover {
+    background: #d0d0d0;
+}
+
+div[class="top"] > button[class="debugbutton"]:active {
+    background: #c0c0c0;
+}
+
+
+
 div[class="body"] {
     width: 100vw;
     height: calc(100vh - 48px);

@@ -121,7 +121,8 @@ def outputProcess():
         if(path in taskmgr.keys()):
             if(type_str == 'output'):
                 result['value'] = taskmgr[path].get_output()
-                print(result['value'])
+                #if result['value'] != 0:
+                #    print(result['value'])
                 return json.dumps(result)
             elif(type_str == 'errmsg'):
                 result['value'] = taskmgr[path].get_errmsg()

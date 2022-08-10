@@ -49,7 +49,7 @@
 			filename: null,
 			terminal: "",
 			timer: null,
-			state: null
+			state: null,
 		},
 
 		methods: {
@@ -94,14 +94,19 @@
 				};
 				axios.post(path, dataT)
 				.then((response) => {
-					if(response.data.value !== 0 && response.data.value !== -1) {
+					if (response.data.value !== 0 && response.data.value !== -1) {
+                        console.log(response.data.value)
 						let el_term = document.getElementById("terminal");
-						el_term.value += response.data.value;
+                        el_term.value += response.data.value;
 					}
 					if(response.data.value === -1 && this.state === "running") {
 						this.clearTime();
 						this.state = "done";
-						document.getElementById("terminal").value += "######### Done #########\n";						
+						document.getElementById("terminal").value += "######### Done #########\n";
+                        buttons = document.getElementsByClassName('debugbutton')
+                        for (let i = 0; i < buttons.length; i++) {
+                            buttons[i].style.display = 'none'
+                        }
 					}
 				});
 			},
@@ -166,6 +171,10 @@
                             this.state = "running";
                             document.getElementById("terminal").value = ("####### debugging #######\n");
 							alert("调试请求发送成功");
+							buttons = document.getElementsByClassName('debugbutton')
+							for (let i = 0; i < buttons.length; i++) {
+								buttons[i].style.display = 'inline-block'
+							}
 						}
 					}
 				)
@@ -186,6 +195,10 @@
 							this.clearTime();
 							this.state = 'done';
 							alert("已终止。");
+                            buttons = document.getElementsByClassName('debugbutton')
+                            for (let i = 0; i < buttons.length; i++) {
+                                buttons[i].style.display = 'none'
+                            }
 						}
 					}
 				);
