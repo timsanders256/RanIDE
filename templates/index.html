@@ -90,7 +90,7 @@
 				};
 				axios.post(path, dataT)
 				.then((response) => {
-					if(response.data.value != 0 && response.data.value != -1) {
+					if(response.data.value !== 0 && response.data.value !== -1) {
 						let el_term = document.getElementById("terminal");
 						el_term.value += response.data.value;
 					}
