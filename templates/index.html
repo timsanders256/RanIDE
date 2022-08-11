@@ -145,6 +145,21 @@
 					}
 				);
 			},
+			async sendLoopPost(mylist){
+				for (let i = 0; i < mylist.length; i++) {
+					let input = "b " + String(mylist[i] + 2);
+					let dataT = {
+						filename: this.filename,
+						input: input,
+					};
+					await axios.post("/input", dataT)
+					.then(
+						(receive) => {
+							console.log('@ ', i);
+						}
+					)
+				}
+			},
 			debugCode(){
 				let code = this.editor.getValue();
 				const path = "/debugCode";
@@ -171,10 +186,11 @@
                             this.state = "running";
                             document.getElementById("terminal").value = ("####### debugging #######\n");
 							alert("调试请求发送成功");
-							buttons = document.getElementsByClassName('debugbutton')
+							buttons = document.getElementsByClassName('debugbutton');
 							for (let i = 0; i < buttons.length; i++) {
-								buttons[i].style.display = 'inline-block'
+								buttons[i].style.display = 'inline-block';
 							}
+							this.sendLoopPost(breakpoints);
 						}
 					}
 				)
