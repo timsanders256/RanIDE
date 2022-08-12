@@ -57,19 +57,12 @@ def debugCode():
         debugpath = 'debug\\' + request.get_json()['filename']
         mycode = request.get_json()['code']
         type = request.get_json()['type']
-        # 当前断点集合为字符串组成的列表（行数从1开始）
         breakpoints = request.get_json()['breakpoints'].split(',')
-        # 在断点位置处加入pdb.set_trace()
-        if breakpoints[0] == '':
-            breakpoints = []
-        else:
-            breakpoints = [int(x) for x in breakpoints]
         old = mycode
-        mycode = mycode.split('\n')
-        for i in breakpoints:
-            mycode.insert(i-1,'pdb.set_trace()')
-        mycode = '\n'.join(mycode)
-        mycode = 'import pdb\n'+mycode
+        if breakpoints[0] == '':
+            pass
+        else:
+            mycode = 'import pdb\npdb.set_trace()\n'+mycode
         saveCodeFunc(path, old)
         saveCodeFunc(debugpath,mycode)
         # 加入断点后开始运行
@@ -101,7 +94,7 @@ def getCode():
 def inputProcess():
     if request.method == 'POST':
         path = 'code\\' +  request.get_json()['filename']
-        input_str = '\n' + request.get_json()['input']
+        input_str = request.get_json()['input']
         if(path in taskmgr.keys()):
             taskmgr[path].input_str(input_str)
             print(input_str)
@@ -121,8 +114,8 @@ def outputProcess():
         if(path in taskmgr.keys()):
             if(type_str == 'output'):
                 result['value'] = taskmgr[path].get_output()
-                #if result['value'] != 0:
-                #    print(result['value'])
+                if result['value'] != 0:
+                    print(result['value'])
                 return json.dumps(result)
             elif(type_str == 'errmsg'):
                 result['value'] = taskmgr[path].get_errmsg()
