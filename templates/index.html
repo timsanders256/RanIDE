@@ -169,14 +169,14 @@
 					offset = 2;
 				}
 				let terminal = document.getElementById("terminal").value;
-				console.log(terminal);
+				//console.log(terminal);
 				let reg_match = />.*\\(\S+)\((\d+)\)<module>/gm;
 				rows = terminal.match(reg_match);
-				console.log(rows)
+				//console.log(rows)
 				file = RegExp.$1;
 				num = RegExp.$2;
-				console.log(file);
-				console.log(num);
+				//console.log(file);
+				//console.log(num);
 				// file留到之后文件切换使用
                 num = Number(num) - offset
 				if (file !== this.filename) return
@@ -192,7 +192,7 @@
 					line.className = 'active-line-number line-numbers'
 					oldline.className = 'line-numbers'
 				}
-				console.log(this.line_number)
+				//console.log(this.line_number)
 				this.line_number = num
 
 			},
@@ -348,6 +348,19 @@
 				if (!model) return
 				let value = { range: new monaco.Range(line, 1, line, 1), options: { isWholeLine: true, linesDecorationsClassName: "breakpoints" } }
 				model.deltaDecorations([], [value])
+				if (this.debug === 'on') {
+					let input = "b " + String(line + 2);  //之后多文件可能还得改file
+					console.log(input)
+					let dataT = {
+						filename: this.filename,
+						input: input,
+					};
+					await axios.post("/input", dataT)
+						.then(
+							(receive) => {
+							}
+						)
+				}
 			},
 			//删除断点，如果指定了line，删除指定行的断点，否则删除当前model里面的所有断点
 			async removeBreakPoint(line) {
@@ -368,6 +381,19 @@
 				if (ids && ids.length) {
 					model.deltaDecorations(ids, [])
 				}
+                if (this.debug === 'on') {
+					let input = "cl " + 'debug\\' + String(this.filename) + ':' + String(line + 2);  //之后多文件可能还得改file
+                    console.log(input)
+                    let dataT = {
+                        filename: this.filename,
+                        input: input,
+                    };
+                    await axios.post("/input", dataT)
+                        .then(
+                            (receive) => {
+                            }
+                        )
+                }
 			},
 			//判断该行是否存在断点
 			hasBreakPoint(line) {
