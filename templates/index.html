@@ -96,19 +96,22 @@
 				};
 				axios.post(path, dataT)
 				.then((response) => {
+                    let el_term = document.getElementById("terminal");
 					if (response.data.value !== 0 && response.data.value !== -1) {
 						let el_term = document.getElementById("terminal");
 						el_term.value += response.data.value;
+                        el_term.scrollTop = el_term.scrollHeight;
 						this.highlight();
 					}
 					if(response.data.value === -1 && this.state === "running") {
 						this.clearTime();
 						this.state = "done";
-						this.debug = "off"
+						this.debug = "off";
 						document.getElementById("terminal").value += "######### Done #########\n";
-                        buttons = document.getElementsByClassName('debugbutton')
+                        el_term.scrollTop = el_term.scrollHeight;
+                        buttons = document.getElementsByClassName('debugbutton');
                         for (let i = 0; i < buttons.length; i++) {
-                            buttons[i].style.display = 'none'
+                            buttons[i].style.display = 'none';
                         }
 					}
 				});
@@ -139,6 +142,7 @@
 				.then(
 					(receive) => {
 						if(receive.data === "done") {
+							this.clearTime(); // 清除上次的计时器
 							this.myTimer();
 							this.state = "running";
 							document.getElementById("terminal").value = ("####### Running #######\n");
@@ -543,6 +547,10 @@
 					"slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
 				// 多行正则匹配
 				let reg_match = /^\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/gm;
+				let exp_match = /([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[:][=].*/gm;
+				let for_match = /^\s*for\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*in/gm;
+				let as_match = /\s*as\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)/gm;
+				let fun_match = /^\s*def\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[(].*[)][:]/gm;
 				monaco.languages.registerCompletionItemProvider("python", {
 					provideCompletionItems: function () {
 						let text = editor.getValue();
@@ -550,7 +558,21 @@
 						while (matches = reg_match.exec(text)) {
 							variables.push(matches[2]);
 						}
+						while (matches = exp_match.exec(text)) {
+							variables.push(matches[1]);
+						}
+						while (matches = for_match.exec(text)) {
+							variables.push(matches[1]);
+						}
+						while (matches = as_match.exec(text)) {
+							variables.push(matches[1]);
+						}
 						variables = [...new Set(variables)];
+						let functions = [];
+						while (matches = fun_match.exec(text)) {
+							functions.push(matches[1]);
+						}
+						functions = [...new Set(functions)];
 						let suggestions = [];
 						keywords.forEach(item => {
 							suggestions.push({
@@ -561,7 +583,7 @@
 						});
 						builtins.forEach(item => {
 							suggestions.push({
-								label: item,
+								label: item+' (builtin)',
 								kind: monaco.languages.CompletionItemKind.Method,
 								insertText: item
 							});
@@ -571,6 +593,15 @@
 								suggestions.push({
 									label: item,
 									kind: monaco.languages.CompletionItemKind.Variable,
+									insertText: item
+								});
+							}
+						});
+						functions.forEach(item => {
+							if(!(keywords.includes(item)) && !(builtins.includes(item))) {
+								suggestions.push({
+									label: item+' (function)',
+									kind: monaco.languages.CompletionItemKind.Method,
 									insertText: item
 								});
 							}
@@ -655,6 +686,7 @@
 				this.editor.onMouseMove((e) => {
 					if (!this.isPythonEditor()) return;
 					this.removeFakeBreakPoint();
+					if(e.target.position === null) return; // 避免鼠标悬停在自动补全待选项上报错
 					let line = e.target.position.lineNumber;
 					if (this.hasBreakPoint(line)) return;
 					//this.removeFakeBreakPoint()
