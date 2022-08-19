@@ -1,5 +1,10 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for, session, json
+import buffer
 import localprocess
+import project
+import files
+import os
+import shutil
 from werkzeug.routing import BaseConverter
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -7,6 +12,7 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 taskmgr = {}
+file_base_forjson = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.url_map.converters['regex'] = RegexConverter
 
@@ -123,6 +129,17 @@ def outputProcess():
     # result['value'] = -1
     # return json.dumps(result)
 
+#临时代码编辑页
+@app.route('/code', methods=['POST', 'GET'])
+def code():
+    if request.method == 'POST':
+        projectname = request.get_json()["name"]
+        print(projectname)
+        #print(projectname.encode('utf-8'))
+        return projectname
+    elif request.method == 'GET':
+        return render_template('code.html')   
+    
 
 # 项目管理页面（首页）
 @app.route('/', methods=['POST', 'GET'])
@@ -133,6 +150,124 @@ def projectmanagement():
         return 'done'
     elif request.method == 'GET':
         return render_template('projectManagement.html')
+
+#项目管理页面获取项目列表
+@app.route('/updateData', methods=["GET"])
+def getProjects():
+    global file_base_forjson
+    path = file_base_forjson + f'\\myProject.json'
+    with open(path, 'r') as f_obj:
+        proj_list = json.load(f_obj)
+    a = len(proj_list)
+    t = {
+        'proj_num': a,
+        'projs': proj_list
+    }
+    return jsonify(t)
+
+# 创建新项目
+@app.route('/createProj', methods=['POST', 'GET'])
+def create_project():
+    if request.method == 'POST':
+        proj_name = request.get_json()['name']
+        proj_creator = request.get_json()['creator']
+        project.create_proj(proj_name, proj_creator)
+        return render_template('projectManagement.html')
+
+# 重命名项目
+@app.route('/renameProj', methods=['POST', 'GET'])
+def rename_project():
+    if request.method == 'POST':
+        old_name = request.get_json()['oldname']
+        new_name = request.get_json()['newname']
+        project.rename_proj(old_name, new_name)
+        return render_template('projectManagement.html')
+
+# 删除项目
+@app.route('/deleteProj', methods=['POST', 'GET'])
+def delete_project():
+    if request.method == 'POST':
+        proj_name = request.get_json()['name']
+        project.delete_proj(proj_name)
+        return render_template('projectManagement.html')
+
+
+# 从后台获取文件树
+@app.route('/getFiletree', methods=["POST"])
+def getFiletree():
+    project_name = request.get_json()['projectname']
+    return jsonify({'files':files.getFiletrees(project_name)})
+
+# 下载文件
+@app.route('/downloadFile', methods=['POST', 'GET'])
+def downloadFile():
+    if request.method == 'POST':
+        path = request.get_json()['path']
+        file = open(path, "rb").read()
+        response = make_response(file)
+        return response
+
+# 重命名文件或文件夹
+@app.route('/rename', methods=['POST', 'GET'])
+def rename():
+    if request.method == 'POST':
+        filenode = request.get_json()['filenode']
+        newname = request.get_json()['newname']
+        path = filenode['path']
+        if filenode['type'] == 'dir':
+            files.rename_dir(path,newname)
+        else:
+            files.rename(path,newname)
+        return ' '
+
+# 删除文件或文件夹
+@app.route('/remove', methods=['POST', 'GET'])
+def remove():
+    if request.method == 'POST':
+        filenode = request.get_json()['filenode']
+        path = filenode['path']
+        if filenode['type'] == 'dir':
+            shutil.rmtree(path)
+        else:
+            os.remove(path)
+        return ' '
+
+#新建文件夹
+@app.route('/newdir', methods=['POST', 'GET'])
+def newdir():
+    if request.method == 'POST':
+        print("newdir")
+        filenode = request.get_json()['filenode']
+        name = request.get_json()['name']
+        path = filenode['path']
+        newdir_path = path + '\\' + name
+        if not os.path.exists(newdir_path):
+            os.mkdir(newdir_path)
+    return " "
+
+#新建文件
+@app.route('/newfile', methods=['POST', 'GET'])
+def newfile():
+    if request.method == 'POST':
+        print("newdir")
+        filenode = request.get_json()['filenode']
+        name = request.get_json()['name']
+        path = filenode['path']
+        newfile_path = path + '\\' + name
+        if not os.path.exists(newfile_path):
+            newfile = open(os.path.abspath(newfile_path), 'w')
+            newfile.close()
+    return " "
+
+#上传文件
+@app.route('/upload', methods=['POST', 'GET'])
+def upload():
+    if request.method == 'POST':
+        print("upload")
+        file = request.files['file']
+        path = request.form['path']
+        file.save(os.path.join(path, file.filename))
+        return " "
 
 if __name__ == '__main__':
     #app.run(debug=True, host="0.0.0.0")
