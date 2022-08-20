@@ -52,9 +52,25 @@
 			state: null,
 			debug: null,
 			line_number:null,
+			rec_buffer: [],
+			rec_counter: 0
 		},
 
 		methods: {
+			printLine(dictIn){
+				let el_term = document.getElementById("terminal");
+				while(dictIn.count < this.rec_counter) {
+					dictIn.count += 9999999;
+				}
+				this.rec_buffer[dictIn.count] = dictIn.value;
+				if(this.rec_buffer[this.rec_counter] !== undefined) {
+					// TODO: printline
+					el_term.value += this.rec_buffer[dictIn.count];
+					el_term.scrollTop = el_term.scrollHeight;
+					this.rec_counter ++;
+				}
+			},
+			
 			// 测试，终端显示
 			inputTerminal(e){
 				// 获取终端内容
@@ -94,27 +110,64 @@
 					filename: this.filename,
 					type: "output",
 				};
-				axios.post(path, dataT)
-				.then((response) => {
-                    let el_term = document.getElementById("terminal");
-					if (response.data.value !== 0 && response.data.value !== -1) {
+				if(this.state !== "error") {
+					axios.post(path, dataT)
+					.then((response) => {
 						let el_term = document.getElementById("terminal");
-						el_term.value += response.data.value;
-                        el_term.scrollTop = el_term.scrollHeight;
-						this.highlight();
-					}
-					if(response.data.value === -1 && this.state === "running") {
-						this.clearTime();
-						this.state = "done";
-						this.debug = "off";
-						document.getElementById("terminal").value += "######### Done #########\n";
-                        el_term.scrollTop = el_term.scrollHeight;
-                        buttons = document.getElementsByClassName('debugbutton');
-                        for (let i = 0; i < buttons.length; i++) {
-                            buttons[i].style.display = 'none';
-                        }
-					}
-				});
+						if (response.data.value !== 0 && response.data.value !== -1) {
+							/*
+							let el_term = document.getElementById("terminal");
+							el_term.value += response.data.value;
+							el_term.scrollTop = el_term.scrollHeight;
+							console.log(response.data.count);
+							*/
+							this.printLine(response.data);
+							this.highlight();
+						}
+						if(response.data.value === -1 && this.state === "running") {
+							// this.clearTime();
+							this.state = "error";
+							this.debug = "off";
+							el_term.scrollTop = el_term.scrollHeight;
+							buttons = document.getElementsByClassName('debugbutton');
+							for (let i = 0; i < buttons.length; i++) {
+								buttons[i].style.display = 'none';
+							}
+						}
+					});
+				}
+				
+				// 错误信息
+				let dataT2 = {
+					filename: this.filename,
+					type: "errmsg",
+				};
+				if(this.state === "error") {
+					axios.post(path, dataT2)
+					.then((response) => {
+						let el_term = document.getElementById("terminal");
+						if (response.data.value !== 0 && response.data.value !== -1) {
+							/*
+							let el_term = document.getElementById("terminal");
+							el_term.value += response.data.value;
+							el_term.scrollTop = el_term.scrollHeight;
+							*/
+							this.printLine(response.data);
+							this.highlight();
+						}
+						if(response.data.value === -1) {
+							this.clearTime();
+							this.state = "done";
+							this.debug = "off";
+							el_term.scrollTop = el_term.scrollHeight;
+							buttons = document.getElementsByClassName('debugbutton');
+							for (let i = 0; i < buttons.length; i++) {
+								buttons[i].style.display = 'none';
+							}
+							//document.getElementById("terminal").value += "######### Done #########\n";
+						}
+					});
+				}
 			},
 			getCode() {
 				const path = "/getCode";
@@ -144,8 +197,10 @@
 						if(receive.data === "done") {
 							this.clearTime(); // 清除上次的计时器
 							this.myTimer();
+							this.rec_buffer = [];
+							this.rec_counter = 0;
 							this.state = "running";
-							document.getElementById("terminal").value = ("####### Running #######\n");
+							document.getElementById("terminal").value = ("# Starting\n");
 						} else {
 							alert("请检查网络，或等待进程运行结束。");
 						}

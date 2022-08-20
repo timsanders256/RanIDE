@@ -10,7 +10,7 @@ os.environ["PYTHONUNBUFFERED"] = "1"
 def enqueue_output(out, queue):
     while True:
         line = ''
-        for _ in range(10):
+        for _ in range(100):
             chr = out.read(1)
             line += chr
             if(chr == b''):
@@ -41,6 +41,8 @@ class process():
         self.errthread.daemon = True
         self.thread.start()
         self.errthread.start()
+        self.countermod = 9999999
+        self.counter = -1
         
     def input_str(self, str_in):
         if(self.p.poll() is not None):
@@ -60,18 +62,20 @@ class process():
         try: 
             line = self.queue.get_nowait()
         except Empty:
-            return 0
+            return 0, 0
         else:
             if(line == '' and self.p.poll() is not None):
-                return -1
-            return line
+                return -1, 0
+            self.counter = (self.counter + 1) % self.countermod
+            return line, self.counter
     
     def get_errmsg(self):
         try: 
             line = self.errqueue.get_nowait()
         except Empty:
-            return 0
+            return 0, 0
         else:
             if(line == '' and self.p.poll() is not None):
-                return -1
-            return line
+                return -1, 0
+            self.counter = (self.counter + 1) % self.countermod
+            return line, self.counter

@@ -31,6 +31,7 @@ def runCode():
         type = request.get_json()['type']
         saveCodeFunc(path, mycode)
         if path in taskmgr.keys():
+            print('KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED KILLED ')
             taskmgr[path].kill()
         taskmgr.pop(path, None)        
         taskmgr[path] = localprocess.process(path, type)
@@ -115,19 +116,20 @@ def outputProcess():
         path = 'code\\' +  request.get_json()['filename']
         type_str = request.get_json()['type']
         result = {
-            'value' : ''
+            'value': '',
+            'count': 0
         }
         if(path in taskmgr.keys()):
             if(type_str == 'output'):
-                result['value'] = taskmgr[path].get_output()
+                result['value'], result['count'] = taskmgr[path].get_output()
                 if result['value'] != 0:
                     print(result['value'])
                 return json.dumps(result)
             elif(type_str == 'errmsg'):
-                result['value'] = taskmgr[path].get_errmsg()
+                result['value'], result['count'] = taskmgr[path].get_errmsg()
                 return json.dumps(result)
-    # result['value'] = -1
-    # return json.dumps(result)
+    result['value'] = -1
+    return json.dumps(result)
 
 #临时代码编辑页
 @app.route('/code', methods=['POST', 'GET'])
