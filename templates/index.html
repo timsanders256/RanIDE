@@ -59,18 +59,21 @@
 		methods: {
 			printLine(dictIn){
 				let el_term = document.getElementById("terminal");
+				/*
 				while(dictIn.count < this.rec_counter) {
 					dictIn.count += 9999999;
 				}
+				*/
 				this.rec_buffer[dictIn.count] = dictIn.value;
 				if(this.rec_buffer[this.rec_counter] !== undefined) {
 					// TODO: printline
 					el_term.value += this.rec_buffer[dictIn.count];
 					el_term.scrollTop = el_term.scrollHeight;
 					this.rec_counter ++;
+					this.rec_counter %= 9999999;
+					this.rec_buffer = []; // 节省内存
 				}
-			},
-			
+			},			
 			// 测试，终端显示
 			inputTerminal(e){
 				// 获取终端内容
