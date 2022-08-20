@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for, session, json
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, json, make_response
 import buffer
 import localprocess
 import project
@@ -26,6 +26,7 @@ def saveCodeFunc(path, code):
 def runCode():
     global taskmgr
     if request.method == 'POST':
+        # path = request.get_json()['filename']
         path = 'code\\' +  request.get_json()['filename']
         mycode = request.get_json()['code']
         type = request.get_json()['type']
@@ -40,6 +41,7 @@ def runCode():
 @app.route('/saveCode', methods=['GET', 'POST'])
 def saveCode():
     if request.method == 'POST':
+        # path = request.get_json()['filename']
         path = 'code\\' +  request.get_json()['filename']
         mycode = request.get_json()['code']
         saveCodeFunc(path, mycode)
@@ -48,6 +50,7 @@ def saveCode():
 @app.route('/killCode', methods=['GET', 'POST'])
 def killCode():
     if request.method == 'POST':
+        # path = request.get_json()['filename']
         path = 'code\\' +  request.get_json()['filename']
         if(path in taskmgr.keys()):
             taskmgr[path].kill()
@@ -90,7 +93,8 @@ def editorRenderer(filename):
 @app.route('/getCode', methods=['POST', 'GET'])
 def getCode():
     if request.method == 'POST':
-        path = 'code\\' +  request.get_json()['filename']
+        path = request.get_json()['filename']
+        print(path)
         with open(path, 'r', encoding='utf-8') as f:
             code = f.read()
         return code
@@ -100,6 +104,7 @@ def getCode():
 @app.route('/input', methods=['POST', 'GET'])
 def inputProcess():
     if request.method == 'POST':
+        # path = request.get_json()['filename']
         path = 'code\\' +  request.get_json()['filename']
         input_str = request.get_json()['input']
         if(path in taskmgr.keys()):
@@ -113,6 +118,7 @@ def inputProcess():
 def outputProcess():
     global taskmgr
     if request.method == 'POST':
+        # path = request.get_json()['filename']
         path = 'code\\' +  request.get_json()['filename']
         type_str = request.get_json()['type']
         result = {
@@ -140,7 +146,11 @@ def code():
         #print(projectname.encode('utf-8'))
         return projectname
     elif request.method == 'GET':
-        return render_template('code.html')   
+        # return render_template('code.html')
+        arg = {
+            'filename': 'null'
+        }
+        return render_template('index.html', arg=arg)  
     
 
 # 项目管理页面（首页）
