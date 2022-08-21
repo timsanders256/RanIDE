@@ -53,7 +53,7 @@ class process():
         self.thread.start()
         self.errthread.start()
         # self.countermod = 9999999
-        self.end = False
+        self.forceEnd = False
         self.counter = -1
         
     def input_str(self, str_in):
@@ -63,6 +63,7 @@ class process():
         self.p.stdin.flush()
     
     def kill(self):
+        self.forceEnd = True
         self.p.terminate()
     
     def state_running(self):
@@ -77,7 +78,10 @@ class process():
             return 0, 0
         else:
             if(line == '' and self.p.poll() is not None):
-                return -1, 0
+                if self.forceEnd == False:
+                    return -1, 0
+                else:
+                    return 0, 0
             self.counter = (self.counter + 1)#  % self.countermod
             return line, self.counter
     
@@ -88,6 +92,9 @@ class process():
             return 0, 0
         else:
             if(line == '' and self.p.poll() is not None):
-                return -1, 0
+                if self.forceEnd == False:
+                    return -1, 0
+                else:
+                    return 0, 0
             self.counter = (self.counter + 1) # % self.countermod
             return line, self.counter

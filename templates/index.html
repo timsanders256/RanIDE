@@ -213,9 +213,11 @@
 			},
 			// 测试，清除定时器
 			async clearTime(){
-				clearInterval(this.timer);
-				this.timer = null;
-				console.log('clearTime');
+				if(this.timer !== null){
+					clearInterval(this.timer);
+					this.timer = null;
+					console.log('clearTime');
+				}
 			},
 			// 测试，发送output的post请求
 			outputTerminal(){
@@ -260,8 +262,7 @@
 							this.highlight();
 						}
 						if(response.data.value === -1) {
-							this.clearTime();
-							console.log('from enjd code');
+							this.clearTime().then(() => {
 								this.state = "done";
 								this.debug = "off";
 								el_term.scrollTop = el_term.scrollHeight;
@@ -269,7 +270,7 @@
 								for (let i = 0; i < buttons.length; i++) {
 									buttons[i].style.display = 'none';
 								}
-							;
+							});
 						}
 					});
 				}
@@ -320,13 +321,16 @@
 					type: this.programType,
 					code: this.editor.getValue()
 				};
+				if(this.state === 'running' || this.timer !== null) {
+					alert('请先终止程序，或等待运行完毕。');
+					return;
+				}
 				axios.post(path, dataT)
 				.then(
 					(receive) => {
 						if(receive.data === "done") {
 							this.clearTime().then(() => {
 								console.log('running');
-								// if(this.timer === null)
 								this.myTimer();
 								this.rec_buffer = [];
 								this.rec_counter = 0;
@@ -334,7 +338,7 @@
 								document.getElementById("terminal").value = ("# Starting\n");
 							})	
 						} else {
-							alert("请检查网络，或等待进程运行结束。");
+							alert("请检查网络。");
 						}
 					}
 				);
@@ -423,7 +427,7 @@
 					}
 				)
 			},
-			async killCode() {
+			killCode() {
 				if(this.state != "running") {
 					alert('程序未运行。');
 					return;
