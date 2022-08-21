@@ -25,8 +25,12 @@ def enqueue_output(out, queue):
 
 class process():
     def __init__(self,  dir, functype="python") -> None:
-        if(functype == "python"):
-            self.p = Popen([functype, dir.rsplit('\\', 1)[1]],
+        if(functype == "python" or functype == "lua"):
+            if(functype == "lua"):
+                func_exec = 'lua-5.4.2_Win32_bin\lua54.exe'
+            else:
+                func_exec = "python"
+            self.p = Popen([func_exec, dir.rsplit('\\', 1)[1]],
                         stdin=PIPE,
                         stdout=PIPE,
                         stderr=PIPE,
