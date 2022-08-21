@@ -1,8 +1,9 @@
 body {
     width: 100vw;
     height: 100vh;
-    min-width: 100vw;
-    min-height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    padding: 0;
     overflow-y: hidden;
     overflow-x: hidden;
     background: #252526;
@@ -13,7 +14,6 @@ body {
 }
 
 main {
-    height: auto;
     flex-grow: 1;
     width: 100vw;
     display: flex;
@@ -41,16 +41,36 @@ div[class="top"]>button[class="topbutton"]{
     background: #606060;
     color: white;
 }
+
 div[class="top"]>button[class="topbutton"]:hover {
     background: #505050;
 }
+
 div[class="top"]>button[class="topbutton"]:active {
     background: #404040;
 }
 
+div[class="top"] > button[class="debugbutton"] {
+    height: 24px;
+    border: 0;
+    border-radius: 0;
+    background: #efefef;
+    color: black;
+    display:none
+}
+div[class="top"] > button[class="debugbutton"]:hover {
+    background: #d0d0d0;
+}
+
+div[class="top"] > button[class="debugbutton"]:active {
+    background: #c0c0c0;
+}
+
+
+
 div[class="body"] {
     width: 100vw;
-    height: auto;
+    height: calc(100vh - 48px);
     flex-grow: 1;
     display: flex;
     flex-direction: row;
@@ -67,6 +87,7 @@ div[class="left"] {
 }
 
 div[class="main_ent"] {
+    height: calc(100vh - 48px);
     width: auto;
     flex-grow: 1;
     display: flex;
@@ -76,7 +97,9 @@ div[class="main_ent"] {
 }
 
 #wrapper {
-    height: auto;
+    height: calc(100vh - 200px);
+	width: calc(100vw - 200px);
+    min-height: 40px;
     flex-grow: 1;
     font-family: 'Courier New', Courier, monospace;
     line-height: 24px;
@@ -92,6 +115,8 @@ textarea[id="terminal"] {
     background: black;
     color: white;
     padding: 8px;
+    resize: none;
+    white-space: pre-wrap;
 }
 
 footer {
@@ -106,4 +131,23 @@ footer {
     background: #404040;
     box-shadow:0 0 16px rgba(0,0,0,0.9);
     z-index: 10;
+}
+
+.breakpoints {
+    background: red;
+    background: radial-gradient(circle at 3px 3px, white, red);
+    width: 10px !important;
+    height: 10px !important;
+    left: 0px !important;
+    top: 3px;
+    border-radius: 5px;
+}
+
+.breakpoints-fake {
+    background: green; 
+    width: 10px !important;
+    height: 10px !important;
+    left: 0px !important;
+    top: 3px;
+    border-radius: 5px;
 }
