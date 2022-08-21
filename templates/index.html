@@ -886,23 +886,26 @@
             },
 			openCode(data, event) {
 				this.filenode = data;
-				// 文件均采用相对路径
-				if(this.state === "running"){
-					this.saveCode().then(() => {
-						this.killCode().then(() => {
+				// console.log(data)
+				if (data.type === 'file') {
+					// 文件均采用相对路径
+					if(this.state === "running"){
+						this.saveCode().then(() => {
+							this.killCode().then(() => {
+								this.filename = this.filenode.path;
+								this.getCode();
+							})
+						})
+					} else if (this.filename !== null) {
+						this.saveCode().then(() => {
 							this.filename = this.filenode.path;
 							this.getCode();
 						})
-					})
-				} else if (this.filename !== null) {
-					this.saveCode().then(() => {
+					} else {
+						// 初次启动
 						this.filename = this.filenode.path;
 						this.getCode();
-					})
-				} else {
-					// 初次启动
-					this.filename = this.filenode.path;
-					this.getCode();
+					}
 				}		
 			},
             importData(item) {
