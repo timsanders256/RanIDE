@@ -158,6 +158,8 @@
 					return "python";
 				} else if(filename.endsWith(".bat")){
 					return "bat";
+				}else if(filename.endsWith(".lua")){
+					return "lua";
 				} else if(filename.endsWith(".md")){
 					return "markdown";
 				} else{
@@ -292,7 +294,7 @@
 							document.getElementById('debug').style.visibility = 'visible';
 							document.getElementById('kill').style.visibility = 'visible';
 							document.getElementById('save').style.visibility = 'visible';
-						} else if(this.programType == 'bat'){
+						} else if(this.programType == 'bat' || this.programType == 'lua'){
 							document.getElementById('run').style.visibility = 'visible';
 							document.getElementById('debug').style.visibility = 'hidden';
 							document.getElementById('kill').style.visibility = 'visible';
