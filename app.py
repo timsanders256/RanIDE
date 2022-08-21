@@ -63,7 +63,15 @@ def debugCode():
     if request.method == 'POST':
         if(request.get_json()['type'] == 'python'):
             path = request.get_json()['filename']
-            debugpath = 'debug\\' + request.get_json()['filename']
+            dir_list = request.get_json()['filename'].split('\\')
+            debugpath = 'debug'
+            for item in dir_list:
+                debugpath = debugpath + '\\' + item
+                if item == dir_list[len(dir_list)-1]:
+                    break
+                if not os.path.exists(debugpath):
+                    os.mkdir(debugpath)
+            # debugpath = 'debug\\' + request.get_json()['filename']
             mycode = request.get_json()['code']
             type = request.get_json()['type']
             breakpoints = request.get_json()['breakpoints'].split(',')
