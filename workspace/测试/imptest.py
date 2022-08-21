@@ -1,2 +1,2 @@
 import module
-module.printoutTest()
+module.printT()

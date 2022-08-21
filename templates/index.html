@@ -132,10 +132,12 @@
 			options: [],
 			// 对文件的几种操作
 			options1: [
+				/*
 				{
 					value: 'open',
 					label: '打开',
 				},
+				*/
 				{
 					value: 'download',
 					label: '下载',
@@ -450,6 +452,11 @@
 
 			},
 			debugCode() {
+				
+				if (this.state === 'running' || this.timer !== null) {
+					this.$message({type: 'error', message: '请先终止程序，或等待运行完毕'});
+					return;
+				}
 				let code = this.editor.getValue();
 				const path = "/debugCode";
 				// 读取断点位置
@@ -777,16 +784,20 @@
 				const value = this.$refs["cas-menu"].getCheckedNodes()[0].data.value;  //获取所选中操作的类型
 				console.log(value);
 				// 打开文件到右侧代码编辑区
+				/*
 				if (value === 'open') {
 					///
 					// filepath = this.filenode.path;
-					this.filename = this.filenode.path;
-					console.log(this.filenode);
-					console.log(this.filename);
-					this.getCode();
+					this.killCode(() => {
+						this.filename = this.filenode.path;
+						console.log(this.filenode);
+						console.log(this.filename);
+						this.getCode();
+					});
 				}
 				// 下载文件
-				else if (value === 'download') {
+				else */
+				if (value === 'download') {
 					label = this.filenode.label
 					axios({
 						method: 'post',
