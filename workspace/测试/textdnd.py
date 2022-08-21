@@ -1,7 +1,7 @@
 # Setup
 yes_no = ['yes', 'no']
 directions = ['left', 'right', 'forward', 'backward']
-print('这是一个IO测试程序.')
+ 
 # Introduction
 name = input('What is your name, villager?\n')
 print('Greetings, ' + name + '. Let us go on a quest!')

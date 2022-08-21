@@ -293,6 +293,7 @@
 						.then((response) => {
 							let el_term = document.getElementById("terminal");
 							this.printLine(response.data);
+							console.log(response.data);
 							if (response.data.value !== 0 && response.data.value !== -1) {
 								this.highlight();
 							}
@@ -367,6 +368,7 @@
 							this.editor.updateOptions({ readOnly: false });
 							this.editor.setValue(receive.data);
 							console.log(receive.data);
+							this.state = "done";
 						}
 					);
 			},
@@ -483,6 +485,8 @@
 						.then(
 							(receive) => {
 								if (receive.data === "done") {
+									this.rec_counter = 0;
+									this.rec_buffer = [];
 									this.myTimer();
 									this.state = "running";
 									this.debug = "on"
@@ -969,22 +973,27 @@
 			openCode(data, event) {
 				this.filenode = data;
 				// 文件均采用相对路径
-				if (this.state === "running") {
-					this.saveCode().then(() => {
-						this.killCode().then(() => {
+				if(this.state !== "loading") {
+					if (this.state === "running") {
+						this.saveCode().then(() => {
+							this.killCode().then(() => {
+								this.filename = this.filenode.path;
+								this.state = "loading";
+								this.getCode();
+							})
+						})
+					} else if (this.filename !== null) {
+						this.saveCode().then(() => {
 							this.filename = this.filenode.path;
+							this.state = "loading";
 							this.getCode();
 						})
-					})
-				} else if (this.filename !== null) {
-					this.saveCode().then(() => {
+					} else {
+						// 初次启动
 						this.filename = this.filenode.path;
+						this.state = "loading";
 						this.getCode();
-					})
-				} else {
-					// 初次启动
-					this.filename = this.filenode.path;
-					this.getCode();
+					}
 				}
 			},
 			importData(item) {

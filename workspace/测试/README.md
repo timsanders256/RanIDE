@@ -1,2 +1,14 @@
-def printoutTest():
-    print('The quick brown fox jumps over the lazy dog.')
+# 说明
+
+## 文件格式支持
+RanIDE根据文件后缀决定打开的方式。  
+- .bat和.py可以运行。
+- .py可以调试。
+- .bat, .md, .py具有语法高亮。
+- 所有文本文件都可以按照UTF-8保存和读取。
+
+## 文件的保存
+当且仅当进行以下操作时文件被保存：  
+- 点击“保存”。
+- 运行或调试。
+- 选择左边栏中另一文件。
