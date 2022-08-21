@@ -32,6 +32,8 @@ def getChild(path, res):
     for i in os.listdir(path):
         temp_dir = os.path.join(path, i)
         temp_label = getLabel(temp_dir)
+        if('__pycache__' in temp_dir):
+            continue
         if os.path.isdir(temp_dir):
             temp = {
                     "path": temp_dir, 
@@ -42,7 +44,19 @@ def getChild(path, res):
                     }
             res['children'].append(getChild(temp_dir, temp))
         else:
-            res['children'].append({'path':temp_dir,"children":[],'type':'file','label':temp_label,'lang':getType(temp_label)})
+            if('.' != temp_dir.rsplit('\\', 1)[1][0]):                  
+                if temp_dir[-3:] == ".py":
+                    res['children'].append({'path':temp_dir,"children":[],'type':'python','label':temp_label,'lang':getType(temp_label)})
+                elif temp_dir[-3:] == ".md":
+                    res['children'].append({'path':temp_dir,"children":[],'type':'markdown','label':temp_label,'lang':getType(temp_label)})
+                elif temp_dir[-3:] == ".js":
+                    res['children'].append({'path':temp_dir,"children":[],'type':'javascript','label':temp_label,'lang':getType(temp_label)})
+                elif temp_dir[-4:] == ".bat":
+                    res['children'].append({'path':temp_dir,"children":[],'type':'bat','label':temp_label,'lang':getType(temp_label)})
+                elif temp_dir[-4:] == ".lua":
+                    res['children'].append({'path':temp_dir,"children":[],'type':'lua','label':temp_label,'lang':getType(temp_label)})
+                else:
+                    res['children'].append({'path':temp_dir,"children":[],'type':'file','label':temp_label,'lang':getType(temp_label)})
     return res
 
 def getFiletrees(project_name):

@@ -5,8 +5,8 @@
 	<meta charset="UTF-8" />
 	<script src="/static/vue.js" type="text/javascript"></script>
 	<script src="/static/axios.js" type="text/javascript"></script>
-    <script src="/static/index.js"></script>
-    <link rel="stylesheet" href="/static/index-element-theme-chalk.css">
+	<script src="/static/index.js"></script>
+	<link rel="stylesheet" href="/static/index-element-theme-chalk.css">
 	<link rel="shortcut icon" href="/static/img/ran.ico" type="image/x-icon" />
 	<link data-name="vs/editor/editor.main" rel="stylesheet" href="/static/monaco-editor/min/vs/editor/editor.main.css">
 	<script src="/static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
@@ -14,179 +14,236 @@
 	<script src="/static/monaco-editor/min/vs/editor/editor.main.js"></script>
 	<link rel="stylesheet" type="text/css" href="/static/index.css" />
 	<link rel="stylesheet" type="text/css" href="/static/projectManagement.css" />
-    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+	<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
 </head>
 
 <body>
 	<main>
-				<div class="top" style="height: 24px;">
-					<button class="topbutton" id="save" type="button" @click="saveCode">保存</button>
-					<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
-					<button class="topbutton" id="kill" type="button" @click="killCode">终止</button>
-					<button class="topbutton" id="debug" type="button" @click="debugCode">调试</button>
-					<button class="debugbutton" id="s" type="button" @click="debug_s">逐语句</button>
-					<button class="debugbutton" id="n" type="button" @click="debug_n">逐过程</button>
-					<button class="debugbutton" id="r" type="button" @click="debug_r">跳出函数</button>
-					<button class="debugbutton" id="c" type="button" @click="debug_c">跳出</button>
-				</div>
-			
+		<div class="top" style="height: 24px;">
+			<button class="topbutton" id="save" type="button" @click="saveCode">保存</button>
+			<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
+			<button class="topbutton" id="kill" type="button" @click="killCode">终止</button>
+			<button class="topbutton" id="debug" type="button" @click="debugCode">调试</button>
+			<button class="debugbutton" id="s" type="button" @click="debug_s">逐语句</button>
+			<button class="debugbutton" id="n" type="button" @click="debug_n">逐过程</button>
+			<button class="debugbutton" id="r" type="button" @click="debug_r">跳出函数</button>
+			<button class="debugbutton" id="c" type="button" @click="debug_c">跳出</button>
+		</div>
+
 		<el-container>
 			<el-aside style="width: 200px;">
+				<el-button icon="el-icon-s-home" type="text" round style="margin-top: 10px;" @click="return_homepage">
+					回到首页</el-button>
 				<div id="menu" v-show="showMenu" ref="showPanel" @click.prevent="handleMenu"
-				style="position: fixed; z-index: 999; cursor:pointer;">
+					style="position: fixed; z-index: 999; cursor:pointer; background-color:white;">
 					<el-cascader-panel ref="cas-menu" :options="options" size="medium"></el-cascader-panel>
 				</div>
-				<div style="margin-top: 40px;">
+				<div style="margin-top: 20px;">
 					<div>
-						<el-tree 
-						:data="files" :props="defaultProps" @node-contextmenu.prevent="openMenu" default-expand-all
-						@node-click="openCode" style="background-color:transparent; color: #aaaaaa;">
-						<span slot-scope="{node, data}">
-							<i v-if="data.type === 'dir'" class="el-icon-folder"></i>
-							<i v-else class="el-icon-python"></i>
-							<span style="margin-left: 10%">{[node.label]}</span>
-						</span>
+						<el-tree :data="files" :props="defaultProps" @node-contextmenu.prevent="openMenu"
+							default-expand-all @node-click="openCode"
+							style="background-color:transparent; color: #aaaaaa;">
+							<span slot-scope="{node, data}">
+								<i v-if="data.type === 'dir'" class="el-icon-folder"></i>
+								<i v-if="data.type === 'python'" class="el-icon-python"></i>
+								<i v-if="data.type === 'markdown'" class="el-icon-info"></i>
+								<i v-if="data.type === 'bat'" class="el-icon-info"></i>
+								<i v-if="data.type === 'javascript'" class="el-icon-info"></i>
+								<i v-if="data.type === 'lua'" class="el-icon-info"></i>
+								<i v-if="data.type === 'file'" class="el-icon-files"></i>
+								<span style="margin-left: 5%">{[node.label]}</span>
+							</span>
 						</el-tree>
 					</div>
 				</div>
 			</el-aside>
-    
+
 			<el-main style="padding: 0; width: auto;">
-				<el-upload :action="action" :http-request="importData" style="display:none">
-					<el-button size="small" type="primary" id='upload_btn'>点击上传</el-button>
-				</el-upload>
+				<!--
+					<el-upload :action="action" :http-request="importData" style="display:none">
+						<el-button size="small" type="primary" id='upload_btn'>点击上传</el-button>
+					</el-upload>
+				-->
 				<div class="main_ent">
 					<div id="wrapper"></div>
-					<textarea id="terminal" spellcheck="false" @keydown.enter="inputTerminal" v-model="terminal"></textarea>
+					<textarea id="terminal" spellcheck="false" @keydown.enter="inputTerminal" v-model="terminal"
+					></textarea>
 				</div>
 			</el-main>
 		</el-container>
 		<el-container>
-			<el-footer>
-				RanIDE 2022
+			<el-footer style="height:auto;">
+				<!-- <el-button type="text" id="language-choosing-button" @click="changeLanguage">{[languageShow]}</el-button> -->
+				Lang
+				<el-dropdown class="avatar-container" trigger="click" @command="changeLanguage"> 
+					<span class="el-dropdown-link" style="color: cyan; padding-left: 4px; padding-right: 4px; border-radius: 5px; background: grey; ">{[languageShow]}</span>
+					<el-dropdown-menu slot="dropdown">
+						<el-dropdown-item command='python'>Python</el-dropdown-item>
+						<el-dropdown-item command='javascript'>Javascript</el-dropdown-item>
+						<el-dropdown-item command='lua'>Lua</el-dropdown-item>
+						<el-dropdown-item command='cpp'>C++</el-dropdown-item>
+						<el-dropdown-item command='bat'>Batch File</el-dropdown-item>
+						<el-dropdown-item command='markdown'>Markdown</el-dropdown-item>
+						<el-dropdown-item command='text'>Plain Text</el-dropdown-item>
+					</el-dropdown-menu>
+				</el-dropdown>
+				<span>&nbsp;&nbsp;RanIDE 2022</span>
 			</el-footer>
 		</el-container>
 	</main>
-	<!-- <footer>
-		
-	</footer> -->
 </body>
 
 <script type="text/javascript">
 	var params = location.search;
-    var projectname = params.split("=")[1]
-    //解码中文路径
-    projectname = decodeURIComponent(decodeURIComponent(projectname))
+	var projectname = params.split("=")[1]
+	//解码中文路径
+	projectname = decodeURIComponent(decodeURIComponent(projectname))
 	var login_page = new Vue({
-        delimiters: ["{[", "]}"],
+		delimiters: ["{[", "]}"],
 		el: "main",
 		data: {
+			languageShow: "Python",
+			languageType: "python",
 			editor: null,
-			programType: null,
 			filename: null,
 			terminal: "",
 			timer: null,
 			state: "done",
 			debug: null,
-			line_number:null,
+			line_number: null,
 			rec_buffer: [],
 			rec_counter: 0,
 			projectName: projectname, //当前打开的项目的名字
-            showMenu: false, //控制文件树右键点击菜单的显示
-            files: [], //项目"文件夹
-            filenode: {
-                label: "label",
-                children: [],
-                path: "path",
-                type: "dir",
-            },
-            defaultProps: {
-                label: "label",
-                children: 'children',
-                path: "path",
-                type: "dir",
-                lang: '',
-            },
-            options: [],
-            // 对文件的几种操作
-            options1: [
-                {
-                    value: 'open',
-                    label: '打开',
-                },
-                {
-                    value: 'download',
-                    label: '下载',
-                },
-                {
-                    value: 'rename',
-                    label: '重命名',
-                },
-                {
-                    value: 'remove',
-                    label: '删除',
-                },
-            ],
-            // 对文件夹的几种操作
-            options2: [
-                {
-                    value: 'rename',
-                    label: '重命名',
-                },
-                {
-                    value: 'remove',
-                    label: '删除',
-                },
-                {
-                    value: 'newdir',
-                    label: '新建目录',
-                },
-                {
-                    value: 'newfile',
-                    label: '新建文件',
-                },
-                {
-                    value: 'upload',
-                    label: '上传文件',
-                },
-            ]
+			showMenu: false, //控制文件树右键点击菜单的显示
+			files: [], //项目"文件夹
+			filenode: {
+				label: "label",
+				children: [],
+				path: "path",
+				type: "dir",
+			},
+			defaultProps: {
+				label: "label",
+				children: 'children',
+				path: "path",
+				type: "dir",
+				lang: '',
+			},
+			options: [],
+			// 对文件的几种操作
+			options1: [
+				{
+					value: 'open',
+					label: '打开',
+				},
+				{
+					value: 'download',
+					label: '下载',
+				},
+				{
+					value: 'rename',
+					label: '重命名',
+				},
+				{
+					value: 'remove',
+					label: '删除',
+				},
+			],
+			// 对文件夹的几种操作
+			options2: [
+				{
+					value: 'rename',
+					label: '重命名',
+				},
+				{
+					value: 'remove',
+					label: '删除',
+				},
+				{
+					value: 'newdir',
+					label: '新建目录',
+				},
+				{
+					value: 'newfile',
+					label: '新建文件',
+				},
+				{
+					value: 'upload',
+					label: '上传文件',
+				},
+			]
 		},
 
 		methods: {
-			getType(filename){
-				if(filename.endsWith(".py")){
-					return "python";
-				} else if(filename.endsWith(".bat")){
-					return "bat";
-				}else if(filename.endsWith(".lua")){
-					return "lua";
-				} else if(filename.endsWith(".md")){
-					return "markdown";
-				} else{
-					return "pxlaintext";
+			changeLanguage(questtype){
+				if(questtype=="python"){
+					this.languageShow = "Python";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
+				}
+				else if(questtype=="javascript"){
+					this.languageShow = "Javascript";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
+				}
+				else if(questtype=="lua"){
+					this.languageShow = "Lua";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
+				}
+				else if(questtype=="bat"){
+					this.languageShow = "Batch File";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
+				}
+				else if(questtype=="markdown"){
+					this.languageShow = "Markdown";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
+				}
+				else {
+					questtype = "text";
+					this.languageShow = "Plain Text";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
 				}
 			},
-			printLine(dictIn){
+			getType(filename) {
+				if (filename.endsWith(".py")) {
+					return "python";
+				} else if (filename.endsWith(".bat")) {
+					return "bat";
+				} else if (filename.endsWith(".md")) {
+					return "markdown";
+				} else if (filename.endsWith(".js")) {
+					return "javascript";
+				} else if (filename.endsWith(".lua")) {
+					return "lua";
+				} else {
+					return "text";
+				}
+			},
+			printLine(dictIn) {
 				let el_term = document.getElementById("terminal");
 				/*
 				while(dictIn.count < this.rec_counter) {
 					dictIn.count += 9999999;
 				}
 				*/
-				if(dictIn.value !== 0 && dictIn.value !== -1){
+				if (dictIn.value !== 0 && dictIn.value !== -1) {
 					this.rec_buffer[dictIn.count] = dictIn.value;
-				}				
-				if(this.rec_buffer[this.rec_counter] !== undefined) {
+				}
+				if (this.rec_buffer[this.rec_counter] !== undefined) {
 					// TODO: printline
 					el_term.value += this.rec_buffer[this.rec_counter];
 					el_term.scrollTop = el_term.scrollHeight;
-					this.rec_counter ++;
+					this.rec_counter++;
 					// this.rec_counter %= 9999999;
-					// this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
+					this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
 				}
-			},			
+			},
 			// 测试，终端显示
-			inputTerminal(e){
+			inputTerminal(e) {
 				// 获取终端内容
 				let terminal = this.terminal.split("\n");
 				// 获取最后一行内容
@@ -198,83 +255,83 @@
 					input: input,
 				};
 				axios.post(path, dataT)
-				.then((response) => {
-					if(response.data === "done") {
-						// alert("输入成功。");
-					} else {
-						alert("请检查网络。");
-					}
-				});
+					.then((response) => {
+						if (response.data === "done") {
+							// alert("输入成功。");
+						} else {
+							this.$message({type: 'error', message: '请检查网络'});
+						}
+					});
 			},
 			// 测试，定时器发送output的post请求
-			myTimer(){
+			myTimer() {
 				this.timer = setInterval(() => {
 					console.log('asking for out');
 					this.outputTerminal();
 				}, 50);
 			},
 			// 测试，清除定时器
-			async clearTime(){
-				if(this.timer !== null){
+			async clearTime() {
+				if (this.timer !== null) {
 					clearInterval(this.timer);
 					this.timer = null;
 					console.log('clearTime');
 				}
 			},
 			// 测试，发送output的post请求
-			outputTerminal(){
+			outputTerminal() {
 				// 发送输入信息
 				const path = "/output";
 				let dataT = {
 					filename: this.filename,
 					type: "output",
 				};
-				if(this.state !== "error") {
+				if (this.state !== "error") {
 					axios.post(path, dataT)
-					.then((response) => {
-						let el_term = document.getElementById("terminal");
-						this.printLine(response.data);
-						if (response.data.value !== 0 && response.data.value !== -1) {
-							this.highlight();
-						} 
-						if(response.data.value === -1 && this.state === "running") {
-							this.state = "error";
-							this.debug = "off";
-							el_term.scrollTop = el_term.scrollHeight;
-							buttons = document.getElementsByClassName('debugbutton');
-							for (let i = 0; i < buttons.length; i++) {
-								buttons[i].style.display = 'none';
+						.then((response) => {
+							let el_term = document.getElementById("terminal");
+							this.printLine(response.data);
+							if (response.data.value !== 0 && response.data.value !== -1) {
+								this.highlight();
 							}
-						}
-					});
-				}
-				
-				// 错误信息
-				let dataT2 = {
-					filename: this.filename,
-					type: "errmsg",
-				};
-				if(this.state === "error") {
-					//console.log('checkError');
-					axios.post(path, dataT2)
-					.then((response) => {
-						let el_term = document.getElementById("terminal");
-						this.printLine(response.data);
-						if (response.data.value !== 0 && response.data.value !== -1) {
-							this.highlight();
-						}
-						if(response.data.value === -1) {
-							this.clearTime().then(() => {
-								this.state = "done";
+							if (response.data.value === -1 && this.state === "running") {
+								this.state = "error";
 								this.debug = "off";
 								el_term.scrollTop = el_term.scrollHeight;
 								buttons = document.getElementsByClassName('debugbutton');
 								for (let i = 0; i < buttons.length; i++) {
 									buttons[i].style.display = 'none';
 								}
-							});
-						}
-					});
+							}
+						});
+				}
+
+				// 错误信息
+				let dataT2 = {
+					filename: this.filename,
+					type: "errmsg",
+				};
+				if (this.state === "error") {
+					//console.log('checkError');
+					axios.post(path, dataT2)
+						.then((response) => {
+							let el_term = document.getElementById("terminal");
+							this.printLine(response.data);
+							if (response.data.value !== 0 && response.data.value !== -1) {
+								this.highlight();
+							}
+							if (response.data.value === -1) {
+								this.clearTime().then(() => {
+									this.state = "done";
+									this.debug = "off";
+									el_term.scrollTop = el_term.scrollHeight;
+									buttons = document.getElementsByClassName('debugbutton');
+									for (let i = 0; i < buttons.length; i++) {
+										buttons[i].style.display = 'none';
+									}
+								});
+							}
+						});
 				}
 			},
 			getCode() {
@@ -285,65 +342,64 @@
 				console.log('get code');
 				console.log(this.filename);
 				axios.post(path, dataT)
-				.then(
-					(receive) => {
-						this.programType = this.getType(this.filename);
-						monaco.editor.setModelLanguage(this.editor.getModel(), this.programType);
-						if(this.programType == 'python'){
-							document.getElementById('run').style.visibility = 'visible';
-							document.getElementById('debug').style.visibility = 'visible';
-							document.getElementById('kill').style.visibility = 'visible';
-							document.getElementById('save').style.visibility = 'visible';
-						} else if(this.programType == 'bat' || this.programType == 'lua'){
-							document.getElementById('run').style.visibility = 'visible';
-							document.getElementById('debug').style.visibility = 'hidden';
-							document.getElementById('kill').style.visibility = 'visible';
-							document.getElementById('save').style.visibility = 'visible';
-						} else {
-							document.getElementById('run').style.visibility = 'hidden';
-							document.getElementById('debug').style.visibility = 'hidden';
-							document.getElementById('kill').style.visibility = 'hidden';
-							document.getElementById('save').style.visibility = 'visible';
+					.then(
+						(receive) => {
+							this.changeLanguage(this.getType(this.filename));
+							if (this.languageType == 'python') {
+								document.getElementById('run').style.visibility = 'visible';
+								document.getElementById('debug').style.visibility = 'visible';
+								document.getElementById('kill').style.visibility = 'visible';
+								document.getElementById('save').style.visibility = 'visible';
+							} else if (this.languageType == 'bat' || this.languageType == 'lua') {
+								document.getElementById('run').style.visibility = 'visible';
+								document.getElementById('debug').style.visibility = 'hidden';
+								document.getElementById('kill').style.visibility = 'visible';
+								document.getElementById('save').style.visibility = 'visible';
+							} else {
+								document.getElementById('run').style.visibility = 'hidden';
+								document.getElementById('debug').style.visibility = 'hidden';
+								document.getElementById('kill').style.visibility = 'hidden';
+								document.getElementById('save').style.visibility = 'visible';
+							}
+							//this.getType(this.filename)
+							this.editor.updateOptions({ readOnly: false });
+							this.editor.setValue(receive.data);
+							console.log(receive.data);
 						}
-						//this.getType(this.filename)
-						this.editor.updateOptions({readOnly: false});
-						this.editor.setValue(receive.data);
-						console.log(receive.data);
-					}
-				);
+					);
 			},
 			// 测试，获取文本内容
 			// 测试，运行代码
 			runCode() {
-				console.log(this.programType);
+				console.log(this.languageType);
 				let code = this.editor.getValue();
 				const path = "/runCode";
 				let dataT = {
 					filename: this.filename,
-					type: this.programType,
+					type: this.languageType,
 					code: this.editor.getValue()
 				};
-				if(this.state === 'running' || this.timer !== null) {
-					alert('请先终止程序，或等待运行完毕。');
+				if (this.state === 'running' || this.timer !== null) {
+					this.$message({type: 'error', message: '请先终止程序，或等待运行完毕'});
 					return;
 				}
 				axios.post(path, dataT)
-				.then(
-					(receive) => {
-						if(receive.data === "done") {
-							this.clearTime().then(() => {
-								console.log('running');
-								this.myTimer();
-								this.rec_buffer = [];
-								this.rec_counter = 0;
-								this.state = "running";
-								document.getElementById("terminal").value = ("# Starting\n");
-							})	
-						} else {
-							alert("请检查网络。");
+					.then(
+						(receive) => {
+							if (receive.data === "done") {
+								this.clearTime().then(() => {
+									console.log('running');
+									this.myTimer();
+									this.rec_buffer = [];
+									this.rec_counter = 0;
+									this.state = "running";
+									document.getElementById("terminal").value = ("# Starting\n");
+								})
+							} else {
+								this.$message({type: 'error=', message: '请检查网络'});
+							}
 						}
-					}
-				);
+					);
 			},
 			async sendLoopPost(mylist) {
 				for (let i = 0; i < mylist.length; i++) {
@@ -353,11 +409,11 @@
 						input: input,
 					};
 					await axios.post("/input", dataT)
-					.then(
-						(receive) => {
-							console.log('@ ', i);
-						}
-					)
+						.then(
+							(receive) => {
+								console.log('@ ', i);
+							}
+						)
 				}
 			},
 			highlight() {
@@ -375,7 +431,7 @@
 				//console.log(file);
 				//console.log(num);
 				// file留到之后文件切换使用
-                num = Number(num) - offset
+				num = Number(num) - offset
 				if (file !== this.filename) return
 				if (this.line_number === null) {
 					lines = document.getElementsByClassName('line-numbers')
@@ -383,9 +439,9 @@
 					line.className = 'active-line-number line-numbers'
 				}
 				else if (this.line_number !== num) {
-                    lines = document.getElementsByClassName('line-numbers')
+					lines = document.getElementsByClassName('line-numbers')
 					line = lines[num - 1]
-					oldline = lines[this.line_number-1]
+					oldline = lines[this.line_number - 1]
 					line.className = 'active-line-number line-numbers'
 					oldline.className = 'line-numbers'
 				}
@@ -393,45 +449,51 @@
 				this.line_number = num
 
 			},
-			debugCode(){
+			debugCode() {
 				let code = this.editor.getValue();
 				const path = "/debugCode";
 				// 读取断点位置
 				let breakpoints = [];
 				let model = this.editor.getModel();
 				let linenum = model.getLineCount();
-				for(let line = 1; line <= linenum; line++){
-					if(this.hasBreakPoint(line)){
+				for (let line = 1; line <= linenum; line++) {
+					if (this.hasBreakPoint(line)) {
 						breakpoints.push(line);
 					}
 				}
-				let dataT = {
-					filename: this.filename,
-					type: this.programType,
-					code: code,
-					breakpoints: breakpoints.join(",")
-				};
-				axios.post(path, dataT)
-				.then(
-					(receive) => {
-						if (receive.data === "done") {
-							this.myTimer();
-							this.state = "running";
-							this.debug = "on"
-                            document.getElementById("terminal").value = ("####### debugging #######\n");
-							alert("调试请求发送成功");
-							buttons = document.getElementsByClassName('debugbutton');
-							for (let i = 0; i < buttons.length; i++) {
-								buttons[i].style.display = 'inline-block';
+				console.log(breakpoints);
+				if(breakpoints.length == 0) {
+					this.$message({type: 'error', message: "断点未设置"});
+					return;
+				} else {
+					let dataT = {
+						filename: this.filename,
+						type: this.languageType,
+						code: code,
+						breakpoints: breakpoints.join(",")
+					};
+					axios.post(path, dataT)
+						.then(
+							(receive) => {
+								if (receive.data === "done") {
+									this.myTimer();
+									this.state = "running";
+									this.debug = "on"
+									document.getElementById("terminal").value = (">>> Debugging\n");
+									this.$message({type: 'info', message: "调试请求发送成功"});
+									buttons = document.getElementsByClassName('debugbutton');
+									for (let i = 0; i < buttons.length; i++) {
+										buttons[i].style.display = 'inline-block';
+									}
+									this.sendLoopPost(breakpoints);
+								}
 							}
-							this.sendLoopPost(breakpoints);
-						}
-					}
-				)
+						);
+				}
 			},
 			async killCode() {
-				if(this.state != "running") {
-					alert('程序未运行。');
+				if (this.state != "running") {
+					this.$message({type: 'info', message: '程序未运行'});
 					return;
 				}
 				const path = "/killCode";
@@ -439,20 +501,20 @@
 					filename: this.filename,
 				};
 				axios.post(path, dataT)
-				.then(
-					(receive) => {
-						if(receive.data === "done") {
-							this.clearTime().then(() => {
-								this.state = 'done';
-								alert("已终止。");
-								buttons = document.getElementsByClassName('debugbutton')
-								for (let i = 0; i < buttons.length; i++) {
-									buttons[i].style.display = 'none'
-								}
-							});
+					.then(
+						(receive) => {
+							if (receive.data === "done") {
+								this.clearTime().then(() => {
+									this.state = 'done';
+									this.$message({type: 'info', message: '程序终止'});
+									buttons = document.getElementsByClassName('debugbutton')
+									for (let i = 0; i < buttons.length; i++) {
+										buttons[i].style.display = 'none'
+									}
+								});
+							}
 						}
-					}
-				);
+					);
 			},
 			async saveCode() {
 				let code = this.editor.getValue();
@@ -462,84 +524,88 @@
 					code: code,
 				};
 				axios.post(path, dataT)
-				.then(
-					(receive) => {
-						if(receive.data === "done") {
-							//alert("保存成功。");
-						} else {
-							alert("请检查网络。");
+					.then(
+						(receive) => {
+							if (receive.data === "done") {
+								//alert("保存成功。");
+							} else {
+								this.$message({type: 'error', message: '请检查网络'});
+							}
 						}
-					}
-				);
+					);
 			},
 			debug_s() {
-                let code = this.editor.getValue();
+				let code = this.editor.getValue();
 				const path = "/input";
 				input = 's'
-                let dataT = {
-                    filename: this.filename,
-                    input: input,
-                };
-                axios.post(path, dataT)
-                    .then((response) => {
-                        if (response.data === "done") {
-                             //alert("单步成功。");
-                        } else {
-                            alert("请检查网络。");
+				let dataT = {
+					filename: this.filename,
+					input: input,
+				};
+				axios.post(path, dataT)
+					.then((response) => {
+						if (response.data === "done") {
+							//alert("单步成功。");
+						} else {
+							this.$message({type: 'error', message: '请检查网络'});
 						}
-                    });
+					});
 			},
-            debug_n() {
-                let code = this.editor.getValue();
-                const path = "/input";
-                input = 'n'
-                let dataT = {
-                    filename: this.filename,
-                    input: input,
-                };
-                axios.post(path, dataT)
-                    .then((response) => {
-                        if (response.data === "done") {
-                            //alert("单步成功。");
-                        } else {
-                            alert("请检查网络。");
-                        }
-                    });
+			debug_n() {
+				let code = this.editor.getValue();
+				const path = "/input";
+				input = 'n'
+				let dataT = {
+					filename: this.filename,
+					input: input,
+				};
+				axios.post(path, dataT)
+					.then((response) => {
+						if (response.data === "done") {
+							//alert("单步成功。");
+						} else {
+							this.$message({type: 'error', message: '请检查网络'});
+						}
+					});
 			},
-            debug_r() {
-                let code = this.editor.getValue();
-                const path = "/input";
-                input = 'r'
-                let dataT = {
-                    filename: this.filename,
-                    input: input,
-                };
-                axios.post(path, dataT)
-                    .then((response) => {
-                        if (response.data === "done") {
-                            //alert("单步成功。");
-                        } else {
-                            alert("请检查网络。");
-                        }
-                    });
+			debug_r() {
+				let code = this.editor.getValue();
+				const path = "/input";
+				input = 'r'
+				let dataT = {
+					filename: this.filename,
+					input: input,
+				};
+				axios.post(path, dataT)
+					.then((response) => {
+						if (response.data === "done") {
+							//alert("单步成功。");
+						} else {
+							this.$message({type: 'error', message: '请检查网络'});
+						}
+					});
 			},
-            debug_c() {
-                let code = this.editor.getValue();
-                const path = "/input";
-                input = 'c'
-                let dataT = {
-                    filename: this.filename,
-                    input: input,
-                };
-                axios.post(path, dataT)
-                    .then((response) => {
-                        if (response.data === "done") {
-                            //alert("单步成功。");
-                        } else {
-                            alert("请检查网络。");
-                        }
-                    });
-            },
+			debug_c() {
+				let code = this.editor.getValue();
+				const path = "/input";
+				input = 'c'
+				let dataT = {
+					filename: this.filename,
+					input: input,
+				};
+				axios.post(path, dataT)
+					.then((response) => {
+						if (response.data === "done") {
+							//alert("单步成功。");
+						} else {
+							this.$message({type: 'error', message: '请检查网络'});
+						}
+					});
+			},
+			//返回主页
+			return_homepage() {
+				window.location.href = "/";
+			},
 			//添加断点
 			async addBreakPoint(line) {
 				let model = this.editor.getModel()
@@ -579,19 +645,19 @@
 				if (ids && ids.length) {
 					model.deltaDecorations(ids, [])
 				}
-                if (this.debug === 'on') {
+				if (this.debug === 'on') {
 					let input = "cl " + 'debug\\' + String(this.filename) + ':' + String(line + 2);  //之后多文件可能还得改file
-                    console.log(input)
-                    let dataT = {
-                        filename: this.filename,
-                        input: input,
-                    };
-                    await axios.post("/input", dataT)
-                        .then(
-                            (receive) => {
-                            }
-                        )
-                }
+					console.log(input)
+					let dataT = {
+						filename: this.filename,
+						input: input,
+					};
+					await axios.post("/input", dataT)
+						.then(
+							(receive) => {
+							}
+						)
+				}
 			},
 			//判断该行是否存在断点
 			hasBreakPoint(line) {
@@ -608,7 +674,7 @@
 				let model = this.editor.getModel()
 				if (!model) return
 				let value = { range: new monaco.Range(line, 1, line, 1), options: { isWholeLine: true, linesDecorationsClassName: "breakpoints-fake" } }
-				model.deltaDecorations([], [value])		
+				model.deltaDecorations([], [value])
 			},
 			//删除所有的伪breakpoint
 			removeFakeBreakPoint() {
@@ -616,7 +682,7 @@
 				if (!model) return
 				let decorations
 				let ids = []
-				linenum=model.getLineCount()
+				linenum = model.getLineCount()
 				decorations = model.getAllDecorations()
 				for (let decoration of decorations) {
 					if (decoration.options.linesDecorationsClassName === "breakpoints-fake") {
@@ -705,189 +771,194 @@
 				return editor
 			},
 			closeMenu() {
-                this.showMenu = false;
-            },
-            handleMenu() {
-                const value = this.$refs["cas-menu"].getCheckedNodes()[0].data.value;  //获取所选中操作的类型
-                console.log(value);
-                // 打开文件到右侧代码编辑区
-                if (value === 'open') {
-                    ///
-                    // filepath = this.filenode.path;
-                    this.filename = this.filenode.path;
+				this.showMenu = false;
+			},
+			handleMenu() {
+				const value = this.$refs["cas-menu"].getCheckedNodes()[0].data.value;  //获取所选中操作的类型
+				console.log(value);
+				// 打开文件到右侧代码编辑区
+				if (value === 'open') {
+					///
+					// filepath = this.filenode.path;
+					this.filename = this.filenode.path;
 					console.log(this.filenode);
 					console.log(this.filename);
-					this.getCode();					 
-                }
-                // 下载文件
-                else if (value === 'download') {
-                    label = this.filenode.label
-                    axios({
-                        method: 'post',
-                        url: '/downloadFile',
-                        data: {
-                            path: this.filenode.path
-                        },
-                        responseType: 'blob'
-                    })
-                        .then(function (response) {
-                            const blobUrl = window.URL.createObjectURL(response.data)
-                            const a = document.createElement('a')
-                            a.style.display = 'none'
-                            a.download = label
-                            a.href = blobUrl
-                            a.click()
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                }
-                // 重命名文件
-                else if (value === 'rename') {
-                    console.log("rename");
-                    this.$prompt('请输入新的文件名/目录名', '重命名', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        inputErrorMessage: '输入不正确',
-                    }).then(({ value }) => {
-                        axios({
-                            method: 'post',
-                            url: '/rename',
-                            data: {
-                                filenode: this.filenode,
-                                newname: value
-                            }
-                        })
-                            .then((res) => {
-                                this.getFileTree();
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                            });
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '取消输入'
-                        });
-                    });
-                }
-                else if (value === 'remove') {
-                    axios({
-                        method: 'post',
-                        url: '/remove',
-                        data: {
-                            filenode: this.filenode,
-                        }
-                    })
-                        .then((res) => {
-                            this.getFileTree();
-                        })
-                        .catch((err) => {
-                            console.error(err);
-                        });
-                }
-                else if (value === 'newdir') {
-                    console.log("newdir");
-                    this.$prompt('请输入新建目录名', '新建目录', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        inputErrorMessage: '输入不正确',
-                    }).then(({ value }) => {
-                        axios({
-                            method: 'post',
-                            url: '/newdir',
-                            data: {
-                                filenode: this.filenode,
-                                name: value
-                            }
-                        })
-                            .then((res) => {
-                                this.getFileTree();
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                            });
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '取消输入'
-                        });
-                    });
-                }
-                else if (value === 'newfile') {
-                    console.log("newfile");
-                    this.$prompt('请输入新建文件名', '新建文件', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        inputErrorMessage: '输入不正确',
-                    }).then(({ value }) => {
-                        axios({
-                            method: 'post',
-                            url: '/newfile',
-                            data: {
-                                filenode: this.filenode,
-                                name: value
-                            }
-                        })
-                            .then((res) => {
-                                this.getFileTree();
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                            });
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '取消输入'
-                        });
-                    });
-                }
-                else if (value === 'upload') {
-                    document.getElementById('upload_btn').click();
-                }
+					this.getCode();
+				}
+				// 下载文件
+				else if (value === 'download') {
+					label = this.filenode.label
+					axios({
+						method: 'post',
+						url: '/downloadFile',
+						data: {
+							path: this.filenode.path
+						},
+						responseType: 'blob'
+					})
+						.then(function (response) {
+							const blobUrl = window.URL.createObjectURL(response.data)
+							const a = document.createElement('a')
+							a.style.display = 'none'
+							a.download = label
+							a.href = blobUrl
+							a.click()
+						})
+						.catch(function (error) {
+							console.log(error);
+						});
+				}
+				// 重命名文件
+				else if (value === 'rename') {
+					console.log("rename");
+					this.$prompt('请输入新的文件名/目录名', '重命名', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						inputErrorMessage: '输入不正确',
+					}).then(({ value }) => {
+						axios({
+							method: 'post',
+							url: '/rename',
+							data: {
+								filenode: this.filenode,
+								newname: value
+							}
+						})
+							.then((res) => {
+								this.getFileTree();
+							})
+							.catch((err) => {
+								console.error(err);
+							});
+					}).catch(() => {
+						this.$message({
+							type: 'info',
+							message: '取消输入'
+						});
+					});
+				}
+				else if (value === 'remove') {
+					axios({
+						method: 'post',
+						url: '/remove',
+						data: {
+							filenode: this.filenode,
+						}
+					})
+						.then((res) => {
+							this.getFileTree();
+						})
+						.catch((err) => {
+							console.error(err);
+						});
+				}
+				else if (value === 'newdir') {
+					console.log("newdir");
+					this.$prompt('请输入新建目录名', '新建目录', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						inputErrorMessage: '输入不正确',
+					}).then(({ value }) => {
+						axios({
+							method: 'post',
+							url: '/newdir',
+							data: {
+								filenode: this.filenode,
+								name: value
+							}
+						})
+							.then((res) => {
+								this.getFileTree();
+							})
+							.catch((err) => {
+								console.error(err);
+							});
+					}).catch(() => {
+						this.$message({
+							type: 'info',
+							message: '取消输入'
+						});
+					});
+				}
+				else if (value === 'newfile') {
+					console.log("newfile");
+					this.$prompt('请输入新建文件名', '新建文件', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						inputErrorMessage: '输入不正确',
+					}).then(({ value }) => {
+						if(value.startsWith('.')){
+							// TODO
+							this.$message({type: 'info', message: '不能新建隐藏的文件'});
+							return;
+						} 
+						axios({
+							method: 'post',
+							url: '/newfile',
+							data: {
+								filenode: this.filenode,
+								name: value
+							}
+						})
+							.then((res) => {
+								this.getFileTree();
+							})
+							.catch((err) => {
+								console.error(err);
+							});
+					}).catch(() => {
+						this.$message({
+							type: 'info',
+							message: '取消输入'
+						});
+					});
+				}
+				else if (value === 'upload') {
+					document.getElementById('upload_btn').click();
+				}
 
-                this.showMenu = false;
-            },
-            getFileTree() {
-                axios
-                    .post('/getFiletree',
-                        { projectname: this.projectName })
-                    .then((res) => {
-                        this.files = [res.data['files']];
-                        console.log(this.files);
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                    });
-            },
-            openMenu(event, data) {
-                this.filenode = data;
-                console.log("openmenu");
+				this.showMenu = false;
+			},
+			getFileTree() {
+				axios
+					.post('/getFiletree',
+						{ projectname: this.projectName })
+					.then((res) => {
+						this.files = [res.data['files']];
+						console.log(this.files);
+					})
+					.catch((err) => {
+						console.error(err);
+					});
+			},
+			openMenu(event, data) {
+				this.filenode = data;
+				console.log("openmenu");
 				console.log(event);
-                var m = document.getElementById('menu');
-                this.filenode = data;
-                if (data.type === 'dir') {
-                    console.log("dirmenu")
-                    this.options = this.options2;
-                    // 确定菜单框出现的位置，不知道为什么目前无效果；
-                    // m.style.top = event.clientY + 'px';
-                    // console.log(m.style.top);
-                    // m.style.left = event.clientX + 'px';
-                }
-                else {
-                    this.options = this.options1;
-                    // m.style.top = event.clientY + 'px';
-                    // m.style.left = event.clientX + 'px';
-                }
+				var m = document.getElementById('menu');
+				this.filenode = data;
+				if (data.type === 'dir') {
+					console.log("dirmenu")
+					this.options = this.options2;
+					// 确定菜单框出现的位置，不知道为什么目前无效果；
+					// m.style.top = event.clientY + 'px';
+					// console.log(m.style.top);
+					// m.style.left = event.clientX + 'px';
+				}
+				else {
+					this.options = this.options1;
+					// m.style.top = event.clientY + 'px';
+					// m.style.left = event.clientX + 'px';
+				}
 				m.style.top = event.clientY + 'px';
-                m.style.left = event.clientX + 'px';
+				m.style.left = event.clientX + 'px';
 				// m.style.cssText = " left: " + (event.clientX - 10) + 'px' + "; top: " + (event.clientY - 25) + 'px;  background: "white"';
-                this.showMenu = true;
-            },
+				this.showMenu = true;
+			},
 			openCode(data, event) {
 				this.filenode = data;
 				// 文件均采用相对路径
-				if(this.state === "running"){
+				if (this.state === "running") {
 					this.saveCode().then(() => {
 						this.killCode().then(() => {
 							this.filename = this.filenode.path;
@@ -903,27 +974,27 @@
 					// 初次启动
 					this.filename = this.filenode.path;
 					this.getCode();
-				}		
+				}
 			},
-            importData(item) {
-                console.log("upload");
-                let formData = new FormData()
-                formData.append('file', item.file)
-                formData.append('path', this.filenode.path)
-                console.log(item.file)
-                axios({
-                    method: 'post',
-                    url: '/upload',
-                    data: formData,
-                    headers: { 'Content-Type': 'multipart/form-data;boundary = ' + new Date().getTime() }
-                })
-                    .then((res) => {
-                        this.getFileTree();
-                    })
-                    .catch((err) => {
-                        console.error(err);
-                    });
-            },
+			importData(item) {
+				console.log("upload");
+				let formData = new FormData()
+				formData.append('file', item.file)
+				formData.append('path', this.filenode.path)
+				console.log(item.file)
+				axios({
+					method: 'post',
+					url: '/upload',
+					data: formData,
+					headers: { 'Content-Type': 'multipart/form-data;boundary = ' + new Date().getTime() }
+				})
+					.then((res) => {
+						this.getFileTree();
+					})
+					.catch((err) => {
+						console.error(err);
+					});
+			},
 
 		},
 		mounted: function () {
@@ -949,18 +1020,18 @@
 					}
 				});
 				monaco.editor.setTheme("darkTheme");
-				let keywords = ["False","None","True","and","as","assert","async","await","break","class","continue",
-					"def","del","elif","else","except","finally","for","from","global","if","import","in",
-					"is","lambda","nonlocal","not","or","pass","raise","return","try","while","with","yield",
-					"long","apply","basestring","buffer","cmp","coerce","execfile","file","intern","raw_input",
-					"reduce","reload","self","unichr","unicode","xrange","__dict__","__methods__","__members__",
-					"__class__","__bases__","__name__","__mro__","__subclasses__","__init__"];
-				let builtins = ["abs","aiter","all","any","anext","ascii","bin","bool","breakpoint","bytearray","bytes",
-					"callable","chr","classmethod","compile","complex","delattr","dict","dir","divmod","enumerate","eval",
-					"exec","filter","float","format","frozenset","getattr","globals","hasattr","hash","help","hex","id",
-					"input","int","isinstance","issubclass","iter","len","list","locals","map","max","memoryview","min","next",
-					"object","oct","open","ord","pow","print","property","range","repr","reversed","round","set","setattr",
-					"slice","sorted","staticmethod","str","sum","super","tuple","type","vars","zip","__import__"];
+				let keywords = ["False", "None", "True", "and", "as", "assert", "async", "await", "break", "class", "continue",
+					"def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in",
+					"is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield",
+					"long", "apply", "basestring", "buffer", "cmp", "coerce", "execfile", "file", "intern", "raw_input",
+					"reduce", "reload", "self", "unichr", "unicode", "xrange", "__dict__", "__methods__", "__members__",
+					"__class__", "__bases__", "__name__", "__mro__", "__subclasses__", "__init__"];
+				let builtins = ["abs", "aiter", "all", "any", "anext", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes",
+					"callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod", "enumerate", "eval",
+					"exec", "filter", "float", "format", "frozenset", "getattr", "globals", "hasattr", "hash", "help", "hex", "id",
+					"input", "int", "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max", "memoryview", "min", "next",
+					"object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr",
+					"slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip", "__import__"];
 				// 多行正则匹配
 				let reg_match = /^\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/gm;
 				let exp_match = /([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[:][=].*/gm;
@@ -999,13 +1070,13 @@
 						});
 						builtins.forEach(item => {
 							suggestions.push({
-								label: item+' (builtin)',
+								label: item + ' (builtin)',
 								kind: monaco.languages.CompletionItemKind.Method,
 								insertText: item
 							});
 						});
 						variables.forEach(item => {
-							if(!(keywords.includes(item)) && !(builtins.includes(item))) {
+							if (!(keywords.includes(item)) && !(builtins.includes(item))) {
 								suggestions.push({
 									label: item,
 									kind: monaco.languages.CompletionItemKind.Variable,
@@ -1014,33 +1085,33 @@
 							}
 						});
 						functions.forEach(item => {
-							if(!(keywords.includes(item)) && !(builtins.includes(item))) {
+							if (!(keywords.includes(item)) && !(builtins.includes(item))) {
 								suggestions.push({
-									label: item+' (function)',
+									label: item + ' (function)',
 									kind: monaco.languages.CompletionItemKind.Method,
 									insertText: item
 								});
 							}
 						});
 						return {
-							suggestions:suggestions
+							suggestions: suggestions
 						};
 					},
 				});
 				// 默认文本
-				var defaultCode = "\n<<< 选择并开始编辑项目 " + this.projectName + " 中的文件。"+
-				"\n\n#     ooooooooo.                         ooooo oooooooooo.   oooooooooooo\n"+
-				"#     \`888   \`Y88.                       \`888' \`888'   \`Y8b  \`888'     \`8\n"+ 
-				"#      888   .d88'  .oooo.   ooo. .oo.    888   888      888  888        \n"+ 
-				"#      888ooo88P'  \`P  )88b  \`888P\"Y88b   888   888      888  888oooo8   \n"+
-				"#      888\`88b.     .oP\"888   888   888   888   888      888  888    \"   \n"+
-				"#      888  \`88b.  d8(  888   888   888   888   888     d88'  888      .8\n"+
-				"#     888o  o888o \`Y888\"\"8o o888o o888o o888o o888bood8P'   o888ooooooood\n#\n"+
-				"#                   ----- S  T  A  N  D  B  Y ----- \n";
+				var defaultCode = "\n<<< 选择并开始编辑项目 " + this.projectName + " 中的文件。" +
+					"\n\n#     ooooooooo.                         ooooo oooooooooo.   oooooooooooo\n" +
+					"#     \`888   \`Y88.                       \`888' \`888'   \`Y8b  \`888'     \`8\n" +
+					"#      888   .d88'  .oooo.   ooo. .oo.    888   888      888  888        \n" +
+					"#      888ooo88P'  \`P  )88b  \`888P\"Y88b   888   888      888  888oooo8   \n" +
+					"#      888\`88b.     .oP\"888   888   888   888   888      888  888    \"   \n" +
+					"#      888  \`88b.  d8(  888   888   888   888   888     d88'  888      .8\n" +
+					"#     888o  o888o \`Y888\"\"8o o888o o888o o888o o888bood8P'   o888ooooooood\n#\n" +
+					"#                   ----- S  T  A  N  D  B  Y ----- \n";
 				var model = monaco.editor.createModel(defaultCode, "python");
 				var editor = monaco.editor.create(document.getElementById("wrapper"), {
 					value: "",
-					language: this.programType,
+					language: this.languageType,
 					automaticLayout: true,
 					wordBasedSuggestions: true,
 					roundedSelection: false,
@@ -1110,7 +1181,7 @@
 				this.editor.onMouseMove((e) => {
 					if (!this.isPythonEditor()) return;
 					this.removeFakeBreakPoint();
-					if(e.target.position === null) return; // 避免鼠标悬停在自动补全待选项上报错
+					if (e.target.position === null) return; // 避免鼠标悬停在自动补全待选项上报错
 					let line = e.target.position.lineNumber;
 					if (this.hasBreakPoint(line)) return;
 					//this.removeFakeBreakPoint()
@@ -1134,15 +1205,15 @@
 			});
 		},
 		created() {
-            document.addEventListener('click', (e) => {
-                if (this.$refs.showPanel) {
-                    let isSelf = this.$refs.showPanel.contains(e.target)
-                    if (!isSelf) {
-                        this.showMenu = false
-                    }
-                }
-            })
-        }
+			document.addEventListener('click', (e) => {
+				if (this.$refs.showPanel) {
+					let isSelf = this.$refs.showPanel.contains(e.target)
+					if (!isSelf) {
+						this.showMenu = false
+					}
+				}
+			})
+		}
 	});
 
 </script>

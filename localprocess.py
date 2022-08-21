@@ -35,7 +35,7 @@ class process():
                         stdout=PIPE,
                         stderr=PIPE,
                         bufsize=10,
-                        encoding='utf-8',
+                        universal_newlines=True,
                         shell=False,
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
@@ -46,7 +46,7 @@ class process():
                         stdout=PIPE,
                         stderr=PIPE,
                         bufsize=10,
-                        encoding='utf-8',
+                        universal_newlines=True,
                         shell=False,
                         close_fds=ON_POSIX)
         self.queue = Queue()

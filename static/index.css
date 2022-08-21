@@ -9,7 +9,8 @@ body {
     background: #252526;
     display: flex;
     flex-direction: column;
-    justify-content: stretch; /* y direction */
+    justify-content: stretch;
+    /* y direction */
     margin: 0;
 }
 
@@ -29,11 +30,11 @@ div[class="top"] {
     padding-right: 6px;
     width: 100vw;
     background: #404040;
-    box-shadow:0 0 16px rgba(0,0,0,0.9);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
     z-index: 10;
 }
 
-div[class="top"]>button[class="topbutton"]{
+div[class="top"]>button[class="topbutton"] {
     height: 24px;
     width: 40px;
     border: 0;
@@ -50,19 +51,20 @@ div[class="top"]>button[class="topbutton"]:active {
     background: #404040;
 }
 
-div[class="top"] > button[class="debugbutton"] {
+div[class="top"]>button[class="debugbutton"] {
     height: 24px;
     border: 0;
     border-radius: 0;
     background: #efefef;
     color: black;
-    display:none
+    display: none
 }
-div[class="top"] > button[class="debugbutton"]:hover {
+
+div[class="top"]>button[class="debugbutton"]:hover {
     background: #d0d0d0;
 }
 
-div[class="top"] > button[class="debugbutton"]:active {
+div[class="top"]>button[class="debugbutton"]:active {
     background: #c0c0c0;
 }
 
@@ -82,7 +84,7 @@ div[class="left"] {
     min-width: 200px;
     height: auto;
     background-color: #606060;
-    box-shadow:0 0 16px rgba(0,0,0,0.9);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
     z-index: 9;
 }
 
@@ -97,8 +99,10 @@ div[class="main_ent"] {
 }
 
 #wrapper {
-    height: calc(100vh - 200px);
-	width: calc(100vw - 200px);
+    /* height: calc(100vh - 200px);
+	width: calc(100vw - 200px); */
+    height: 75%;
+    width: calc(100vw - 200px);
     min-height: 40px;
     flex-grow: 1;
     font-family: 'Courier New', Courier, monospace;
@@ -110,7 +114,8 @@ div[class="main_ent"] {
 
 textarea[id="terminal"] {
     width: auto;
-    height: 200px;
+    /* height: 200px; */
+    height: 25%;
     box-sizing: border-box;
     background: black;
     color: white;
@@ -129,7 +134,7 @@ footer {
     width: 100vw;
     font-family: 'Courier New', Courier, monospace;
     background: #404040;
-    box-shadow:0 0 16px rgba(0,0,0,0.9);
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.9);
     z-index: 10;
 }
 
@@ -144,10 +149,27 @@ footer {
 }
 
 .breakpoints-fake {
-    background: green; 
+    background: green;
     width: 10px !important;
     height: 10px !important;
     left: 0px !important;
     top: 3px;
     border-radius: 5px;
+}
+
+.el-table .warning-row {
+    background: oldlace;
+}
+
+.el-table .success-row {
+    background: #f0f9eb;
+}
+
+.el-footer {
+    vertical-align: top;
+}
+
+.el-dropdown-link {
+    cursor: pointer;
+    color: #409EFF;
 }
