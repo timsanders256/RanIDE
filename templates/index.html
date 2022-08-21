@@ -180,7 +180,7 @@
 					el_term.scrollTop = el_term.scrollHeight;
 					this.rec_counter ++;
 					// this.rec_counter %= 9999999;
-					this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
+					// this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
 				}
 			},			
 			// 测试，终端显示
@@ -207,14 +207,15 @@
 			// 测试，定时器发送output的post请求
 			myTimer(){
 				this.timer = setInterval(() => {
+					console.log('asking for out');
 					this.outputTerminal();
 				}, 50);
 			},
 			// 测试，清除定时器
-			async clearTime(){				
-				// console.log('clearTime');
+			async clearTime(){
 				clearInterval(this.timer);
 				this.timer = null;
+				console.log('clearTime');
 			},
 			// 测试，发送output的post请求
 			outputTerminal(){
@@ -259,7 +260,8 @@
 							this.highlight();
 						}
 						if(response.data.value === -1) {
-							this.clearTime().then(() => {
+							this.clearTime();
+							console.log('from enjd code');
 								this.state = "done";
 								this.debug = "off";
 								el_term.scrollTop = el_term.scrollHeight;
@@ -267,7 +269,7 @@
 								for (let i = 0; i < buttons.length; i++) {
 									buttons[i].style.display = 'none';
 								}
-							});
+							;
 						}
 					});
 				}
@@ -323,7 +325,9 @@
 					(receive) => {
 						if(receive.data === "done") {
 							this.clearTime().then(() => {
-								if(this.timer === null) this.myTimer();
+								console.log('running');
+								// if(this.timer === null)
+								this.myTimer();
 								this.rec_buffer = [];
 								this.rec_counter = 0;
 								this.state = "running";
@@ -876,7 +880,7 @@
             },
 			openCode(data, event) {
 				this.filenode = data;
-				// 此时文件名为绝对路径
+				// 文件均采用相对路径
 				if(this.state === "running"){
 					this.saveCode().then(() => {
 						this.killCode().then(() => {

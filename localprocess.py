@@ -53,6 +53,7 @@ class process():
         self.thread.start()
         self.errthread.start()
         # self.countermod = 9999999
+        self.end = False
         self.counter = -1
         
     def input_str(self, str_in):
