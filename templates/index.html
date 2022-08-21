@@ -172,8 +172,8 @@
 					el_term.value += this.rec_buffer[dictIn.count];
 					el_term.scrollTop = el_term.scrollHeight;
 					this.rec_counter ++;
-					this.rec_counter %= 9999999;
-					this.rec_buffer = []; // 节省内存
+					// this.rec_counter %= 9999999;
+					this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
 				}
 			},			
 			// 测试，终端显示

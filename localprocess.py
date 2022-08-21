@@ -41,7 +41,7 @@ class process():
         self.errthread.daemon = True
         self.thread.start()
         self.errthread.start()
-        self.countermod = 9999999
+        # self.countermod = 9999999
         self.counter = -1
         
     def input_str(self, str_in):
@@ -66,7 +66,7 @@ class process():
         else:
             if(line == '' and self.p.poll() is not None):
                 return -1, 0
-            self.counter = (self.counter + 1) % self.countermod
+            self.counter = (self.counter + 1)#  % self.countermod
             return line, self.counter
     
     def get_errmsg(self):
@@ -77,5 +77,5 @@ class process():
         else:
             if(line == '' and self.p.poll() is not None):
                 return -1, 0
-            self.counter = (self.counter + 1) % self.countermod
+            self.counter = (self.counter + 1) # % self.countermod
             return line, self.counter
