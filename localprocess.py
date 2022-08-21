@@ -26,16 +26,18 @@ def enqueue_output(out, queue):
 class process():
     def __init__(self,  dir, functype="python") -> None:
         if(functype == "python"):
-            self.p = Popen([functype, dir],
+            self.p = Popen([functype, dir.rsplit('\\', 1)[1]],
                         stdin=PIPE,
                         stdout=PIPE,
                         stderr=PIPE,
                         bufsize=10,
                         encoding='utf-8',
                         shell=False,
+                        cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
         else:
-            self.p = Popen([dir],
+            print(dir.rsplit('\\', 1)[1], dir.rsplit('\\', 1)[0])
+            self.p = Popen(dir,
                         stdin=PIPE,
                         stdout=PIPE,
                         stderr=PIPE,
@@ -43,7 +45,6 @@ class process():
                         encoding='utf-8',
                         shell=False,
                         close_fds=ON_POSIX)
-            
         self.queue = Queue()
         self.thread = Thread(target=enqueue_output, args=(self.p.stdout, self.queue))
         self.errqueue = Queue()

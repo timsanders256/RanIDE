@@ -86,7 +86,7 @@
 			filename: null,
 			terminal: "",
 			timer: null,
-			state: null,
+			state: "done",
 			debug: null,
 			line_number:null,
 			rec_buffer: [],
@@ -427,7 +427,7 @@
 					}
 				)
 			},
-			killCode() {
+			async killCode() {
 				if(this.state != "running") {
 					alert('程序未运行。');
 					return;
