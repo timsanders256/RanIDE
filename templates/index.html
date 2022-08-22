@@ -1217,6 +1217,14 @@
 				this.editor.onDidChangeModelContent((event) => {
 					let model = this.editor.getModel();
 					console.log("@1208 modelContent Changed")
+					// 添加断点
+					this.curBreakPoint.info.forEach((item) => {
+						if(!this.hasBreakPoint(item)){
+							console.log("@1231 ", item, "添加断点");
+							this.addBreakPoint(item);
+						}
+						console.log("验证是否成功添加断点：", this.hasBreakPoint(item));
+					});
 					// 读取断点位置
 					let breakpoints = [];
 					let linenum = model.getLineCount();
@@ -1236,11 +1244,13 @@
 							//如果当前行的内容为空，删除断点（空行不允许设置断点）
 							if (this.editor.getModel().getLineContent(line).trim() === "") {
 								this.removeBreakPoint(line)
+								console.log('@空', line)
 							} else {
 								//如果当前行存在断点，删除多余的断点只保留一个
 								if (this.hasBreakPoint(line)) {
 									this.removeBreakPoint(line);
 									this.addBreakPoint(line);
+									console.log('@非空', line)
 								}
 							}
 						}
