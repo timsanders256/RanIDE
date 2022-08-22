@@ -39,6 +39,26 @@ class process():
                         shell=False,
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
+        elif(functype == "javac"):
+            self.p = Popen(['javac', '-g',dir.rsplit('\\', 1)[1]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        universal_newlines=True,
+                        shell=False,
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
+        elif(functype == "java"):
+            self.p = Popen(['java', dir.rsplit('\\', 1)[1]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        universal_newlines=True,
+                        shell=False,
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
         else:
             print(dir.rsplit('\\', 1)[1], dir.rsplit('\\', 1)[0])
             self.p = Popen(dir,

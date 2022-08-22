@@ -51,6 +51,7 @@
 								<i v-if="data.type === 'javascript'" class="el-icon-info"></i>
 								<i v-if="data.type === 'lua'" class="el-icon-info"></i>
 								<i v-if="data.type === 'file'" class="el-icon-files"></i>
+								<i v-if="data.type === 'java'" class="el-icon-java"></i>
 								<span style="margin-left: 5%">{[node.label]}</span>
 							</span>
 						</el-tree>
@@ -85,6 +86,7 @@
 						<el-dropdown-item command='bat'>Batch File</el-dropdown-item>
 						<el-dropdown-item command='markdown'>Markdown</el-dropdown-item>
 						<el-dropdown-item command='text'>Plain Text</el-dropdown-item>
+						<el-dropdown-item command='java'>Java</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
 				<span>&nbsp;&nbsp;RanIDE 2022</span>
@@ -188,6 +190,11 @@
 					this.languageType = questtype;
 					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
 				}
+				else if(questtype=="java"){
+					this.languageShow = "Java";
+					this.languageType = questtype;
+					monaco.editor.setModelLanguage(this.editor.getModel(), questtype);
+				}
 				else if(questtype=="lua"){
 					this.languageShow = "Lua";
 					this.languageType = questtype;
@@ -221,6 +228,8 @@
 					return "javascript";
 				} else if (filename.endsWith(".lua")) {
 					return "lua";
+				} else if (filename.endsWith(".java")) {
+					return "java";
 				} else {
 					return "text";
 				}
@@ -348,7 +357,7 @@
 					.then(
 						(receive) => {
 							this.changeLanguage(this.getType(this.filename));
-							if (this.languageType == 'python') {
+							if (this.languageType == 'python' || this.languageType == 'java') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'visible';
 								document.getElementById('kill').style.visibility = 'visible';
@@ -453,8 +462,7 @@
 				this.line_number = num
 
 			},
-			debugCode() {
-				
+			debugCode() {				
 				if (this.state === 'running' || this.timer !== null) {
 					this.$message({type: 'error', message: '请先终止程序，或等待运行完毕'});
 					return;
