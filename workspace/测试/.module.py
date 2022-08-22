@@ -1,5 +1,9 @@
-fname = 'string\\.lua'
-a = string.find(fname,"\\.lua$")
+import pdb
+pdb.set_trace()
+def printT():
+    print('test')
+
+a = 'a'
 print(a)
 print(a)
 print(a)

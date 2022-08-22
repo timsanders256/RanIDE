@@ -80,7 +80,27 @@ def debugCode():
             taskmgr.pop(path, None)        
             taskmgr[path] = localprocess.process(debugpath, type)
             return 'done'
+        elif(request.get_json()['type'] == 'lua'):
+            path = request.get_json()['filename']
+            debugpath = path.rsplit('\\', 1)[0] + '\\.' + path.rsplit('\\', 1)[1]
+            mycode = request.get_json()['code']
+            type = request.get_json()['type']
+            breakpoints = request.get_json()['breakpoints'].split(',')
+            old = mycode
+            if breakpoints[0] == '':
+                pass
+            else:
+                mycode = 'require("ldb")\nldb.ldb_open()\n'+mycode
+            saveCodeFunc(path, old)
+            saveCodeFunc(debugpath, mycode)
+            # 加入断点后开始运行
+            if path in taskmgr.keys():
+                taskmgr[path].kill()
+            taskmgr.pop(path, None)        
+            taskmgr[path] = localprocess.process(debugpath, type)
+            return 'done'
         else:
+            return 'done'
             pass
 '''
 @app.route('/<regex(".*"):filename>/edit')

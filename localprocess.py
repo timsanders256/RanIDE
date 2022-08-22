@@ -1,5 +1,6 @@
 from subprocess import Popen, PIPE
 from queue import Queue, Empty
+from functools import partial
 from threading  import Thread
 import sys
 import os
@@ -8,10 +9,16 @@ ON_POSIX = 'posix' in sys.builtin_module_names
 os.environ["PYTHONUNBUFFERED"] = "1"
 
 def enqueue_output(out, queue):
+    '''
+    for b in iter(partial(out.read, 1), b""):
+        sys.stdout.flush()
+        queue.put(b)
+    '''
     while True:
         line = ''
-        for _ in range(100):
+        for _ in range(200):
             chr = out.read(1)
+            sys.stdout.flush()
             line += chr
             if(chr == b''):
                 queue.put(line)
@@ -21,13 +28,14 @@ def enqueue_output(out, queue):
             if(chr == '\n'):
                 break
         queue.put(line)
+    
     out.close()
 
 class process():
     def __init__(self,  dir, functype="python") -> None:
         if(functype == "python" or functype == "lua"):
             if(functype == "lua"):
-                func_exec = 'lua-5.4.2_Win32_bin\lua54.exe'
+                func_exec = 'D:\\cs\\git\\RanIDE\\lua_Win32_bin\\lua52.exe'
             else:
                 func_exec = "python"
             self.p = Popen([func_exec, dir.rsplit('\\', 1)[1]],

@@ -59,11 +59,11 @@
 			</el-aside>
 
 			<el-main style="padding: 0; width: auto;">
-				<!--
-					<el-upload :action="action" :http-request="importData" style="display:none">
+				
+					<el-upload action="" :http-request="importData" style="display:none">
 						<el-button size="small" type="primary" id='upload_btn'>点击上传</el-button>
 					</el-upload>
-				-->
+				
 				<div class="main_ent">
 					<div id="wrapper"></div>
 					<textarea id="terminal" spellcheck="false" @keydown.enter="inputTerminal" v-model="terminal"
@@ -239,9 +239,9 @@
 					// TODO: printline
 					el_term.value += this.rec_buffer[this.rec_counter];
 					el_term.scrollTop = el_term.scrollHeight;
-					this.rec_counter++;
 					// this.rec_counter %= 9999999;
-					this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
+					// this.rec_buffer = this.rec_buffer.slice(this.rec_counter); // 节省内存
+					this.rec_counter++;
 				}
 			},
 			// 测试，终端显示
@@ -268,9 +268,9 @@
 			// 测试，定时器发送output的post请求
 			myTimer() {
 				this.timer = setInterval(() => {
-					console.log('asking for out');
+					// console.log('asking for out');
 					this.outputTerminal();
-				}, 50);
+				}, 100);
 			},
 			// 测试，清除定时器
 			async clearTime() {
@@ -293,7 +293,7 @@
 						.then((response) => {
 							let el_term = document.getElementById("terminal");
 							this.printLine(response.data);
-							console.log(response.data);
+							// console.log(response.data);
 							if (response.data.value !== 0 && response.data.value !== -1) {
 								this.highlight();
 							}
@@ -348,12 +348,12 @@
 					.then(
 						(receive) => {
 							this.changeLanguage(this.getType(this.filename));
-							if (this.languageType == 'python') {
+							if (this.languageType == 'python' || this.languageType == 'lua') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'visible';
 								document.getElementById('kill').style.visibility = 'visible';
 								document.getElementById('save').style.visibility = 'visible';
-							} else if (this.languageType == 'bat' || this.languageType == 'lua') {
+							} else if (this.languageType == 'bat') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'hidden';
 								document.getElementById('kill').style.visibility = 'visible';
@@ -367,7 +367,7 @@
 							//this.getType(this.filename)
 							this.editor.updateOptions({ readOnly: false });
 							this.editor.setValue(receive.data);
-							console.log(receive.data);
+							// console.log(receive.data);
 							this.state = "done";
 						}
 					);
@@ -375,7 +375,6 @@
 			// 测试，获取文本内容
 			// 测试，运行代码
 			runCode() {
-				console.log(this.languageType);
 				let code = this.editor.getValue();
 				const path = "/runCode";
 				let dataT = {
@@ -470,11 +469,9 @@
 						breakpoints.push(line);
 					}
 				}
+				console.log(this.languageType);
 				console.log(breakpoints);
-				if(breakpoints.length == 0) {
-					this.$message({type: 'error', message: "断点未设置"});
-					return;
-				} else {
+				
 					let dataT = {
 						filename: this.filename,
 						type: this.languageType,
@@ -500,7 +497,7 @@
 								}
 							}
 						);
-				}
+				
 			},
 			async killCode() {
 				if (this.state != "running") {
@@ -582,7 +579,11 @@
 			debug_r() {
 				let code = this.editor.getValue();
 				const path = "/input";
-				input = 'r'
+				input = 'r';
+				console.log(this.languageType);
+				if(this.languageType === "lua") {
+					input = 'finish';
+				}
 				let dataT = {
 					filename: this.filename,
 					input: input,
@@ -704,8 +705,8 @@
 					model.deltaDecorations(ids, [])
 				}
 			},
-			isPythonEditor() {
-				return this.editor.getModel().getLanguageId() === "python"
+			isPythonOrLuaEditor() {
+				return (this.editor.getModel().getLanguageId() === "python") || (this.editor.getModel().getLanguageId() === "lua");
 			},
 			insertContent(text) {
 				if (this.editor) {
@@ -1167,7 +1168,7 @@
 				})
 				this.editor.onMouseDown((e) => {
 					//这里只允许python编辑器添加breakpoint，如果你想在mousedown里面做点别的
-					if (!this.isPythonEditor()) return;
+					if (!this.isPythonOrLuaEditor()) return;
 					//这里限制了一下点击的位置，只有点击breakpoint应该出现的位置，才会创建，其他位置没反应
 					if (e.target.detail && e.target.detail.offsetX && e.target.detail.offsetX >= 0 && e.target.detail.offsetX <= 10) {
 						let line = e.target.position.lineNumber;
@@ -1199,7 +1200,7 @@
 				this.editor.initGoToDefinitionCrossModels;
 
 				this.editor.onMouseMove((e) => {
-					if (!this.isPythonEditor()) return;
+					if (!this.isPythonOrLuaEditor()) return;
 					this.removeFakeBreakPoint();
 					if (e.target.position === null) return; // 避免鼠标悬停在自动补全待选项上报错
 					let line = e.target.position.lineNumber;

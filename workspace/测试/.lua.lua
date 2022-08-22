@@ -1,3 +1,5 @@
+require("ldb")
+ldb.ldb_open()
 fname = 'string\\.lua'
 a = string.find(fname,"\\.lua$")
 print(a)
