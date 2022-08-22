@@ -179,3 +179,12 @@ footer {
 .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
     background-color: rgb(72 72 72) !important;
 }
+
+.cas-menu .el-cascader-node__prefix {
+    visibility: hidden;
+}
+
+.cas-menu .is-active, .el-cascader-node__label{
+    color: black;
+    font-weight: 100;
+}
