@@ -24,10 +24,10 @@
 			<button class="topbutton" id="run" type="button" @click="runCode">运行</button>
 			<button class="topbutton" id="kill" type="button" @click="killCode">终止</button>
 			<button class="topbutton" id="debug" type="button" @click="debugCode">调试</button>
-			<button class="debugbutton" id="s" type="button" @click="debug_s">逐语句</button>
-			<button class="debugbutton" id="n" type="button" @click="debug_n">逐过程</button>
-			<button class="debugbutton" id="r" type="button" @click="debug_r">跳出函数</button>
-			<button class="debugbutton" id="c" type="button" @click="debug_c">跳出</button>
+			<button class="debugbutton" id="s" type="button" @click="debug_s">Step 逐语句</button>
+			<button class="debugbutton" id="n" type="button" @click="debug_n">Next 逐过程</button>
+			<button class="debugbutton" id="r" type="button" @click="debug_r">Return 跳出函数</button>
+			<button class="debugbutton" id="c" type="button" @click="debug_c">Continue 跳出</button>
 		</div>
 
 		<el-container>
@@ -235,6 +235,7 @@
 				if (dictIn.value !== 0 && dictIn.value !== -1) {
 					this.rec_buffer[dictIn.count] = dictIn.value;
 				}
+				console.log(dictIn.value);
 				if (this.rec_buffer[this.rec_counter] !== undefined) {
 					// TODO: printline
 					el_term.value += this.rec_buffer[this.rec_counter];
@@ -348,6 +349,7 @@
 					.then(
 						(receive) => {
 							this.changeLanguage(this.getType(this.filename));
+							document.title = 'RanIDE Demo: ' + this.filename.slice('workspace\\'.length);
 							if (this.languageType == 'python' || this.languageType == 'lua') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'visible';
@@ -1054,16 +1056,20 @@
 					"object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr",
 					"slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip", "__import__"];
 				// 多行正则匹配
-				let reg_match = /^\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/gm;
+				let reg_match = /\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*=/gm;
+				let reg_match_2 = /\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[\\]\s*\n*\s*=/gm;
 				let exp_match = /([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[:][=].*/gm;
 				let for_match = /^\s*for\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*in/gm;
 				let as_match = /\s*as\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)/gm;
-				let fun_match = /^\s*def\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[(].*[)][:]/gm;
+				let fun_match = /^\s*def\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[(](.*)[)][:]/gm;
 				monaco.languages.registerCompletionItemProvider("python", {
 					provideCompletionItems: function () {
 						let text = editor.getValue();
 						let variables = [];
 						while (matches = reg_match.exec(text)) {
+							variables.push(matches[2]);
+						}
+						while (matches = reg_match_2.exec(text)) {
 							variables.push(matches[2]);
 						}
 						while (matches = exp_match.exec(text)) {
@@ -1074,11 +1080,23 @@
 						}
 						while (matches = as_match.exec(text)) {
 							variables.push(matches[1]);
+
 						}
+						
 						variables = [...new Set(variables)];
 						let functions = [];
 						while (matches = fun_match.exec(text)) {
 							functions.push(matches[1]);
+							let split_params = matches[2].split(',');
+							for(var_raw of split_params) {
+								let rem = var_raw.match(/^\s*[a-z,A-Z,_][a-z,A-Z,0-9,_]*/);
+								if(rem !== null) {
+									let var_strip = rem[0].replace(/^\s\s*/, '');
+									if(!(keywords.includes(var_strip))&& !(builtins.includes(var_strip))) {
+										variables.push(var_strip);
+									}
+								}
+							}
 						}
 						functions = [...new Set(functions)];
 						let suggestions = [];
@@ -1108,7 +1126,7 @@
 						functions.forEach(item => {
 							if (!(keywords.includes(item)) && !(builtins.includes(item))) {
 								suggestions.push({
-									label: item + ' (function)',
+									label: item + ' (custom)',
 									kind: monaco.languages.CompletionItemKind.Method,
 									insertText: item
 								});
@@ -1119,6 +1137,100 @@
 						};
 					},
 				});
+				let lua_keywords = ["and","break","do","else","elseif","end","false","for","function","goto","if","in","local","nil","not","or","repeat","return","then","true","until","while"];
+				// Predifined Functions
+				let lua_functions = ["getfenv","getmetatable","ipairs","dofile","dostring","next","nextvar","tostring","print","tonumber","type","assert","error","setglobal","getglobal","setfallback","load","loadfile","loadstring","pairs","rawequal","rawget","rawset","select","setfenv","setmetatable","unpack",
+					// String Manipulation
+					"strfind", "strlen", "strsub", "strlower", "strupper", "ascii",
+					// garbage
+					"collectgarbage",
+					// debug
+					"debug", "getfenv", "gethook", "getinfo", "getlocal", "getmetatable", "getregistry", "getupvalue", "setfenv", "sethook", "setlocal", "setmetatable", "setupvalue", "traceback",
+					// Maths
+					"math.abs", "math.acos", "math.asin", "math.atan", "math.atan2", "math.ceil", "math.cos", "math.floor", "math.log", "math.log10", "math.max", "math.min", "math.mod", "math.sin", "math.sqrt", "math.tan", "math.random", "math.randomseed",
+					// OS
+					"os.clock", "os.date", "os.difftime", "os.execute", "os.exit", "os.getenv", "os.remove", "os.rename", "os.setlocale", "os.time", "os.tmpname",
+					// IO
+					"io.lines", "io.open", "io.input", "io.read", "io.close", "io.output", "io.write", "io.tmpfile", "io.type", "io.flush", "io.lines",
+					":read", ":write", ":close", ":flush", ":seek",
+					"readfrom", "writeto", "appendto", "remove", "rename", "tmpname", "read", "readuntil", "write", "date", "exit"
+				];
+				// 多行正则匹配
+				let lua_fun_match = /(local)*\s*function\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[(](.*)[)]/gm;				
+				let lua_reg_match = /\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*(::)*=/gm;
+				let lua_reg_match_2 = /\s*([a-z,A-Z,_][a-z,A-Z,0-9,_]*[.])*([a-z,A-Z,_][a-z,A-Z,0-9,_]*)\s*[\\]\s*\s*(::)*=/gm;
+				monaco.languages.registerCompletionItemProvider("lua", {
+					provideCompletionItems: function () {
+						let text = editor.getValue().replace('\n', ' ');
+						let lua_functions_custom = [];
+						let lua_variables = ["_G", "_ENV"];
+						
+						while (matches = lua_reg_match.exec(text)) {
+							lua_variables.push(matches[2]);
+						}
+						while (matches = lua_reg_match_2.exec(text)) {
+							lua_variables.push(matches[2]);
+						}
+
+						while (matches = lua_fun_match.exec(text)) {
+							lua_functions_custom.push(matches[2]);
+							let split_params = matches[3].split(',');
+							for(var_raw of split_params) {
+								let rem = var_raw.match(/^\s*[a-z,A-Z,_][a-z,A-Z,0-9,_]*/);
+								if(rem !== null) {
+									let var_strip = rem[0].replace(/^\s\s*/, '');
+									if(!(lua_keywords.includes(var_strip)) && !(lua_functions.includes(var_strip))) {
+										lua_variables.push(var_strip);
+									}
+								}
+							}
+						}
+
+						
+
+						lua_variables = [...new Set(lua_variables)];
+						lua_functions_custom = [...new Set(lua_functions_custom)];
+						console.log(lua_functions_custom);
+						let suggestions = [];
+						lua_keywords.forEach(item => {
+							suggestions.push({
+								label: item,
+								kind: monaco.languages.CompletionItemKind.Keyword,
+								insertText: item
+							});
+						});
+						lua_functions.forEach(item => {
+							suggestions.push({
+								label: item + ' (builtin)',
+								kind: monaco.languages.CompletionItemKind.Method,
+								insertText: item
+							});
+						});
+						lua_functions_custom.forEach(item => {
+							suggestions.push({
+								label: item + ' (custom)',
+								kind: monaco.languages.CompletionItemKind.Method,
+								insertText: item
+							});
+						});
+						
+						let functions = [];
+						while (matches = fun_match.exec(text)) {
+							functions.push(matches[1]);
+						}
+						lua_variables.forEach((item) => {
+							suggestions.push({
+								label: item,
+								kind: monaco.languages.CompletionItemKind.Variable,
+								insertText: item
+							});
+						});
+						return {
+							suggestions: suggestions
+						};
+					},
+				});
+
 				// 默认文本
 				var defaultCode = "\n<<< 选择并开始编辑项目 " + this.projectName + " 中的文件。" +
 					"\n\n#     ooooooooo.                         ooooo oooooooooo.   oooooooooooo\n" +
