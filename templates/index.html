@@ -41,7 +41,7 @@
 				<div style="margin-top: 20px;">
 					<div>
 						<el-tree :data="files" :props="defaultProps" @node-contextmenu.prevent="openMenu"
-							default-expand-all @node-click="openCode"
+							default-expand-all @node-click="openCode" highlight-current
 							style="background-color:transparent; color: #aaaaaa;">
 							<span slot-scope="{node, data}">
 								<i v-if="data.type === 'dir'" class="el-icon-folder"></i>
@@ -173,7 +173,14 @@
 					value: 'upload',
 					label: '上传文件',
 				},
-			]
+			],
+			// 保存每个文件的断点信息
+			breakPointsInfo: [],
+			// 当前文件的断点信息
+			curBreakPoint:{
+				filename: '',
+				info: []
+			},
 		},
 
 		methods: {
@@ -972,30 +979,88 @@
 				m.style.left = event.clientX + 'px';
 				// m.style.cssText = " left: " + (event.clientX - 10) + 'px' + "; top: " + (event.clientY - 25) + 'px;  background: "white"';
 				this.showMenu = true;
+			},saveBreakPoints() {
+				// 保存原文件断点信息(已经打开了文件)
+				if(this.filename !== null){
+					var flag = false;
+					// 更新断点信息
+					for(var i = 0, len = this.breakPointsInfo.length; i < len; i++) {
+						if (this.breakPointsInfo[i].filename === this.filename){
+							this.breakPointsInfo[i].info = this.curBreakPoint.info;
+							flag = true;
+							break;
+						}
+					}
+					// 初次保存断点信息
+					if(flag === false) {
+						var bpinfo = {
+							filename: this.filename,
+							info: this.curBreakPoint.info
+						};
+						this.breakPointsInfo.push(bpinfo);
+					}
+				}
 			},
-			openCode(data, event) {
+			updateBreakPoints() {
+				// 显示新开文件断点信息
+				var flag = false;
+				// console.log(this.filename);
+				for(var i = 0, len = this.breakPointsInfo.length; i < len; i++) {
+					if (this.breakPointsInfo[i].filename === this.filename){
+						console.log("@986 更新断点信息，旧文件");
+						this.curBreakPoint.filename = this.breakPointsInfo[i].filename;
+						this.curBreakPoint.info = this.breakPointsInfo[i].info;
+						flag = true;
+						break;
+					}
+				}
+				if(flag === false) {
+					console.log('@994 更新断点信息，新文件');
+					this.curBreakPoint.filename = this.filename;
+					this.curBreakPoint.info = [];
+				}
+				// 添加断点
+				this.curBreakPoint.info.forEach((item) => {
+					console.log("@1000 ", item, "添加断点");
+					this.addBreakPoint(item);
+					console.log("验证是否成功添加断点：", this.hasBreakPoint(item));
+				});
+			},
+			openCode(data, event) {				
+				// 保存原文件断点信息
+				this.saveBreakPoints();
 				this.filenode = data;
 				// 文件均采用相对路径
-				if(this.state !== "loading") {
-					if (this.state === "running") {
-						this.saveCode().then(() => {
-							this.killCode().then(() => {
+				if(data.type !== 'dir'){
+					if(this.state !== "loading") {
+						if (this.state === "running") {
+							this.saveCode().then(() => {
+								this.killCode().then(() => {
+									this.filename = this.filenode.path;
+									this.state = "loading";
+									this.getCode();
+									// 更新断点信息
+									this.updateBreakPoints();
+								})
+							})
+						} else if (this.filename !== null) {
+							this.saveCode().then(() => {
 								this.filename = this.filenode.path;
 								this.state = "loading";
+								console.log("else if loading");
 								this.getCode();
+								// 更新断点信息
+								this.updateBreakPoints();
 							})
-						})
-					} else if (this.filename !== null) {
-						this.saveCode().then(() => {
+						} else {
+							// 初次启动
 							this.filename = this.filenode.path;
 							this.state = "loading";
+							console.log("else loading");
 							this.getCode();
-						})
-					} else {
-						// 初次启动
-						this.filename = this.filenode.path;
-						this.state = "loading";
-						this.getCode();
+							// 更新断点信息
+							this.updateBreakPoints();
+						}
 					}
 				}
 			},
@@ -1257,7 +1322,24 @@
 				this.editor = editor;
 				this.editor.onDidChangeModelContent((event) => {
 					let model = this.editor.getModel();
-					// console.log("debug151")
+					console.log("@1208 modelContent Changed");
+					// 添加断点
+					this.curBreakPoint.info.forEach((item) => {
+						if(!this.hasBreakPoint(item)){
+							console.log("@1231 ", item, "添加断点");
+							this.addBreakPoint(item);
+						}
+						console.log("验证是否成功添加断点：", this.hasBreakPoint(item));
+					});
+					// 读取断点位置
+					let breakpoints = [];
+					let linenum = model.getLineCount();
+					for (let line = 1; line <= linenum; line++) {
+						if (this.hasBreakPoint(line)) {
+							breakpoints.push(line);
+						}
+					}
+					console.log(breakpoints);
 					//必须在nextTick处理，不然getPosition返回的位置有问题
 					this.$nextTick(() => {
 						//获取当前的鼠标位置
@@ -1267,7 +1349,7 @@
 							let line = pos.lineNumber;
 							//如果当前行的内容为空，删除断点（空行不允许设置断点）
 							if (this.editor.getModel().getLineContent(line).trim() === "") {
-								// this.removeBreakPoint(line)
+								this.removeBreakPoint(line)
 							} else {
 								//如果当前行存在断点，删除多余的断点只保留一个
 								if (this.hasBreakPoint(line)) {
@@ -1292,8 +1374,14 @@
 						if (!this.hasBreakPoint(line)) {
 							//console.log(this)
 							this.addBreakPoint(line);
+							// 添加断点信息
+							this.curBreakPoint.info.push(line);
 						} else {
 							this.removeBreakPoint(line);
+							// 删除断点信息
+							this.curBreakPoint.info = this.curBreakPoint.info.filter(function(item){
+								return item !== line
+							});
 						}
 						//如果存在上个位置，将鼠标移到上个位置，否则使editor失去焦点
 						if (this.lastPosition) {
