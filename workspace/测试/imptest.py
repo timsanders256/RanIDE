@@ -1,2 +1,0 @@
-import module
-module.printT()

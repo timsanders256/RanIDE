@@ -121,6 +121,8 @@ textarea[id="terminal"] {
     color: white;
     padding: 8px;
     resize: none;
+    border: none;
+    outline: none;
     white-space: pre-wrap;
 }
 

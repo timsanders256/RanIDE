@@ -1,2 +1,0 @@
-def printT():
-    print('test')
