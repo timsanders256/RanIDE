@@ -175,3 +175,7 @@ footer {
     cursor: pointer;
     color: #409EFF;
 }
+
+.el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
+    background-color: rgb(72 72 72) !important;
+}

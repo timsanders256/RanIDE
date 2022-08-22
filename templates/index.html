@@ -41,7 +41,7 @@
 				<div style="margin-top: 20px;">
 					<div>
 						<el-tree :data="files" :props="defaultProps" @node-contextmenu.prevent="openMenu"
-							default-expand-all @node-click="openCode"
+							default-expand-all @node-click="openCode" highlight-current
 							style="background-color:transparent; color: #aaaaaa;">
 							<span slot-scope="{node, data}">
 								<i v-if="data.type === 'dir'" class="el-icon-folder"></i>
