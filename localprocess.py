@@ -1,35 +1,11 @@
 from subprocess import Popen, PIPE
-from queue import Queue, Empty
 from functools import partial
-from threading  import Thread
+from threading  import Thread, Lock
 import sys
 import os
 
 ON_POSIX = 'posix' in sys.builtin_module_names
 os.environ["PYTHONUNBUFFERED"] = "1"
-
-def enqueue_output(out, queue):
-    '''
-    for b in iter(partial(out.read, 1), b""):
-        sys.stdout.flush()
-        queue.put(b)
-    '''
-    while True:
-        line = ''
-        for _ in range(200):
-            chr = out.read(1)
-            sys.stdout.flush()
-            line += chr
-            if(chr == b''):
-                queue.put(line)
-                queue.put('')
-                out.close()
-                return
-            if(chr == '\n'):
-                break
-        queue.put(line)
-    
-    out.close()
 
 class process():
     def __init__(self,  dir, functype="python") -> None:
@@ -65,18 +41,32 @@ class process():
                         universal_newlines=True,
                         shell=False,
                         close_fds=ON_POSIX)
-        self.queue = Queue()
-        self.thread = Thread(target=enqueue_output, args=(self.p.stdout, self.queue))
-        self.errqueue = Queue()
-        self.errthread = Thread(target=enqueue_output, args=(self.p.stderr, self.errqueue))
+        self.thread = Thread(target=self.get_output_stdout)
+        self.errthread = Thread(target=self.get_output_stderr)
         self.thread.daemon = True
         self.errthread.daemon = True
         self.thread.start()
         self.errthread.start()
-        # self.countermod = 9999999
         self.forceEnd = False
         self.counter = -1
-        
+        self.lock = Lock()
+        self.stdout_str = ''
+        self.stderr_str = ''
+    
+    def get_output_stdout(self):
+        for b in iter(partial(self.p.stdout.read, 1), b""):
+            if(b != ''):
+                self.lock.acquire()
+                self.stdout_str += b
+                self.lock.release()
+                
+    def get_output_stderr(self):
+        for b in iter(partial(self.p.stderr.read, 1), b""):
+            if(b != ''):
+                self.lock.acquire()
+                self.stdout_str += b
+                self.lock.release()
+    
     def input_str(self, str_in):
         if(self.p.poll() is not None):
             return
@@ -93,29 +83,29 @@ class process():
         return True
     
     def get_output(self):
-        try: 
-            line = self.queue.get_nowait()
-        except Empty:
-            return 0, 0
-        else:
-            if(line == '' and self.p.poll() is not None):
-                if self.forceEnd == False:
-                    return -1, 0
-                else:
-                    return 0, 0
+        self.lock.acquire()
+        line = self.stdout_str
+        self.stdout_str = ''
+        self.lock.release()
+        if(line != ''):
             self.counter = (self.counter + 1)#  % self.countermod
             return line, self.counter
-    
-    def get_errmsg(self):
-        try: 
-            line = self.errqueue.get_nowait()
-        except Empty:
-            return 0, 0
         else:
-            if(line == '' and self.p.poll() is not None):
+            if(self.p.poll() is not None):
                 if self.forceEnd == False:
                     return -1, 0
-                else:
-                    return 0, 0
-            self.counter = (self.counter + 1) # % self.countermod
+            return 0, 0
+    
+    def get_errmsg(self):
+        self.lock.acquire()
+        line = self.stderr_str
+        self.stderr_str = ''
+        self.lock.release()
+        if(line != ''):
+            self.counter = (self.counter + 1)#  % self.countermod
             return line, self.counter
+        else:
+            if(self.p.poll() is not None):
+                if self.forceEnd == False:
+                    return -1, 0
+            return 0, 0
