@@ -1,4 +1,4 @@
-math.randomseed(os.time())
+io.stdout: setvbuf 'no' math.randomseed(os.time())
 
 gbl = {}
 cfg = {}
@@ -231,7 +231,7 @@ end
 --============================================
 function entertocontinue ()
   print(string.rep('_', 80))
-  print('\tHit [enter] to continue.')
+  io.write('\tHit [enter] to continue.')
   io.read()
   print('\n')
 end
@@ -407,7 +407,7 @@ function inventoryprompt(text, t, dst, test)
     if (text:lower()):find('verb') then
       print('You can access the following items:\n')
       for _, v in pairs(gbl.inventory) do
-        print('  ' .. ununderscore(v) .. '\n')
+        io.write('  ' .. ununderscore(v) .. '\n')
       end
       print()
     end
@@ -426,7 +426,7 @@ function inventoryprompt(text, t, dst, test)
       end
     end
     print('\tx .... to exit')
-    print('  --> ')
+    io.write('  --> ')
     r = string.lower(io.read())
     r = (r == 'x' and r or tonumber(r))
     print(((valid[r] or r == 'x') and '' or 'Invalid Response.\n'))
@@ -442,7 +442,7 @@ function enterinventory()
     elseif #gbl.inventory < 2 then
       print('You have access to the following items:\n')
       for _, v in pairs(gbl.inventory) do
-        print('  ' .. ununderscore(v) .. '\n')
+        io.write('  ' .. ununderscore(v) .. '\n')
       end
       break
     else
@@ -672,7 +672,7 @@ prompt = (function ()
 
   local function intro ()
     print(' Enter your name:\n  (Or hit [enter] for ' .. game.defaultname .. '.)')
-    print(' --> ')
+    io.write(' --> ')
     gbl.name = io.read()
 
     if gbl.name == '' then gbl.name = game.defaultname end
@@ -710,7 +710,7 @@ prompt = (function ()
           print(' ', k, v)
         end
 
-        print(' --> ')
+        io.write(' --> ')
         r = io.read()
 
         if not isenemy then

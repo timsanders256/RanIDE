@@ -101,7 +101,7 @@ div[class="main_ent"] {
 #wrapper {
     /* height: calc(100vh - 200px);
 	width: calc(100vw - 200px); */
-    height: 75%;
+    height: 60%;
     width: calc(100vw - 200px);
     min-height: 40px;
     flex-grow: 1;
@@ -115,9 +115,9 @@ div[class="main_ent"] {
 textarea[id="terminal"] {
     width: auto;
     /* height: 200px; */
-    height: 25%;
+    height: 40%;
     box-sizing: border-box;
-    background: black;
+    background: #202020;
     color: white;
     padding: 8px;
     resize: none;

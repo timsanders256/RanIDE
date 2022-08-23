@@ -53,6 +53,8 @@ def getChild(path, res):
                     res['children'].append({'path':temp_dir,"children":[],'type':'javascript','label':temp_label,'lang':getType(temp_label)})
                 elif temp_dir[-4:] == ".bat":
                     res['children'].append({'path':temp_dir,"children":[],'type':'bat','label':temp_label,'lang':getType(temp_label)})
+                elif temp_dir[-4:] == ".cpp":
+                    res['children'].append({'path':temp_dir,"children":[],'type':'cpp','label':temp_label,'lang':getType(temp_label)})
                 elif temp_dir[-4:] == ".lua":
                     res['children'].append({'path':temp_dir,"children":[],'type':'lua','label':temp_label,'lang':getType(temp_label)})
                 elif temp_dir[-5:] == ".java":
