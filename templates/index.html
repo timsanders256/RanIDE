@@ -412,18 +412,33 @@
 					);
 			},
 			async sendLoopPost(mylist) {
-				for (let i = 0; i < mylist.length; i++) {
-					let input = "b " + String(mylist[i] + 2);
-					let dataT = {
-						filename: this.filename,
-						input: input,
-					};
-					await axios.post("/input", dataT)
-						.then(
-							(receive) => {
-								console.log('@ ', i);
-							}
-						)
+				for (let i = 0; i <= mylist.length; i++) {
+					if(i < mylist.length){
+						let input = "b " + String(mylist[i] + 2);
+						let dataT = {
+							filename: this.filename,
+							input: input,
+						};
+						await axios.post("/input", dataT)
+							.then(
+								(receive) => {
+									console.log('@ ', i);
+								}
+							)
+					}
+					else{
+						let input = "c";
+						let dataT = {
+							filename: this.filename,
+							input: input,
+						};
+						await axios.post("/input", dataT)
+							.then(
+								(receive) => {
+									console.log('@ ', i);
+								}
+							)
+					}
 				}
 			},
 			highlight() {
