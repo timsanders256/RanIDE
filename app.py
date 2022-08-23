@@ -71,12 +71,8 @@ def debugCode():
             debugpath = path.rsplit('\\', 1)[0] + '\\.' + path.rsplit('\\', 1)[1]
             mycode = request.get_json()['code']
             type = request.get_json()['type']
-            breakpoints = request.get_json()['breakpoints'].split(',')
             old = mycode
-            if breakpoints[0] == '':
-                pass
-            else:
-                mycode = 'import pdb\npdb.set_trace()\n'+mycode
+            mycode = 'import pdb\npdb.set_trace()\n'+mycode
             saveCodeFunc(path, old)
             saveCodeFunc(debugpath,mycode)
             # 加入断点后开始运行

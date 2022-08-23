@@ -420,36 +420,58 @@
 						}
 					);
 			},
-			async sendLoopPost(mylist) {
-				for (let i = 0; i <= mylist.length; i++) {
-					if(i < mylist.length){
-						let input = "b " + String(mylist[i] + 2);
-						let dataT = {
-							filename: this.filename,
-							input: input,
-						};
-						await axios.post("/input", dataT)
-							.then(
-								(receive) => {
-									console.log('@ ', i);
-								}
-							)
-					}
-					else{
-						let input = "c";
-						let dataT = {
-							filename: this.filename,
-							input: input,
-						};
-						await axios.post("/input", dataT)
-							.then(
-								(receive) => {
-									console.log('@ ', i);
-								}
-							)
-					}
-				}
-			},
+            async sendLoopPost(mylist) {
+                console.log(mylist)
+                console.log(this.curBreakPoint)
+                for (let j = 0; j < this.curBreakPoint.info.length; j++) {
+                    let input = "b " + String(this.curBreakPoint.info[j] + 2);
+                    let dataT = {
+                        filename: this.filename,
+                        input: input,
+                    };
+                    await axios.post("/input", dataT)
+                        .then(
+                            (receive) => {
+                                console.log('@ ', j);
+                            }
+                        )
+                }
+                for (let i = 0; i < mylist.length; i++) {
+                    let cur = mylist[i]
+                    let curfile = mylist[i].filename
+                    let curbp = mylist[i].info
+                    if (curfile === this.curBreakPoint.filename) {
+                        continue
+                    }
+                    for (let j = 0; j < curbp.length; j++) {
+                        let paths = curfile.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
+                        console.log(paths)
+                        let path = paths[paths.length - 1]
+                        let input = "b " + path + ':' + String(curbp[j]);
+                        console.log(input)
+                        let dataT = {
+                            filename: this.filename,
+                            input: input,
+                        };
+                        await axios.post("/input", dataT)
+                            .then(
+                                (receive) => {
+                                }
+                            )
+                    }
+                }
+                let input = 'c';
+                let dataT = {
+                    filename: this.filename,
+                    input: input,
+                };
+                await axios.post("/input", dataT)
+                    .then(
+                        (receive) => {
+                            console.log('asdasdsgy');
+                        }
+                    )
+            },
 			highlight() {
 				let offset = 0;
 				if (this.debug === "on") {
@@ -483,52 +505,51 @@
 				this.line_number = num
 
 			},
-			debugCode() {				
-				if (this.state === 'running' || this.timer !== null) {
-					this.$message({type: 'error', message: '请先终止程序，或等待运行完毕'});
-					return;
-				}
-				let code = this.editor.getValue();
-				const path = "/debugCode";
-				// 读取断点位置
-				let breakpoints = [];
-				let model = this.editor.getModel();
-				let linenum = model.getLineCount();
-				for (let line = 1; line <= linenum; line++) {
-					if (this.hasBreakPoint(line)) {
-						breakpoints.push(line);
-					}
-				}
-				console.log(this.languageType);
-				console.log(breakpoints);
-				
-					let dataT = {
-						filename: this.filename,
-						type: this.languageType,
-						code: code,
-						breakpoints: breakpoints.join(",")
-					};
-					axios.post(path, dataT)
-						.then(
-							(receive) => {
-								if (receive.data === "done") {
-									this.rec_counter = 0;
-									this.rec_buffer = [];
-									this.myTimer();
-									this.state = "running";
-									this.debug = "on"
-									document.getElementById("terminal").value = (">>> Debugging\n");
-									this.$message({type: 'info', message: "调试请求发送成功"});
-									buttons = document.getElementsByClassName('debugbutton');
-									for (let i = 0; i < buttons.length; i++) {
-										buttons[i].style.display = 'inline-block';
-									}
-									this.sendLoopPost(breakpoints);
-								}
-							}
-						);
-				
-			},
+            debugCode() {
+
+                if (this.state === 'running' || this.timer !== null) {
+                    this.$message({ type: 'error', message: '请先终止程序，或等待运行完毕' });
+                    return;
+                }
+                let code = this.editor.getValue();
+                const path = "/debugCode";
+                // 读取断点位置
+                //let breakpoints = [];
+                let model = this.editor.getModel();
+                let linenum = model.getLineCount();
+                //for (let line = 1; line <= linenum; line++) {
+                //	if (this.hasBreakPoint(line)) {
+                //		breakpoints.push(line);
+                //	}
+                //}
+                console.log(this.languageType);
+
+                let dataT = {
+                    filename: this.filename,
+                    type: this.languageType,
+                    code: code,
+                };
+                axios.post(path, dataT)
+                    .then(
+                        (receive) => {
+                            if (receive.data === "done") {
+                                this.rec_counter = 0;
+                                this.rec_buffer = [];
+                                this.myTimer();
+                                this.state = "running";
+                                this.debug = "on"
+                                document.getElementById("terminal").value = (">>> Debugging\n");
+                                this.$message({ type: 'info', message: "调试请求发送成功" });
+                                buttons = document.getElementsByClassName('debugbutton');
+                                for (let i = 0; i < buttons.length; i++) {
+                                    buttons[i].style.display = 'inline-block';
+                                }
+                                this.sendLoopPost(this.breakPointsInfo);
+                            }
+                        }
+                    );
+
+            },
 			async killCode() {
 				if (this.state != "running") {
 					this.$message({type: 'info', message: '程序未运行'});
