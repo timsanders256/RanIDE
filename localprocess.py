@@ -101,6 +101,28 @@ class process():
                         shell=False, 
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
+        elif(functype == "jdb"):
+            func_exec = 'jdb'
+            self.p = Popen([func_exec,dir.rsplit('\\', 1)[1]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        encoding='utf-8',
+                        shell=False, 
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
+        # elif(functype == "run"):
+        #     func_exec = 'run'
+        #     self.p = Popen([func_exec],
+        #                 stdin=PIPE,
+        #                 stdout=PIPE,
+        #                 stderr=PIPE,
+        #                 bufsize=10,
+        #                 encoding='utf-8',
+        #                 shell=False, 
+        #                 cwd=dir.rsplit('\\', 1)[0],
+        #                 close_fds=ON_POSIX)
         else:
             print(dir.rsplit('\\', 1)[1], dir.rsplit('\\', 1)[0])
             self.p = Popen(dir,

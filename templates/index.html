@@ -364,12 +364,12 @@
 					.then(
 						(receive) => {
 							this.changeLanguage(this.getType(this.filename));
-							if (this.languageType == 'python'|| this.languageType == 'java') {
+							if (this.languageType == 'python'|| this.languageType == 'java'|| this.languageType == 'lua') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'visible';
 								document.getElementById('kill').style.visibility = 'visible';
 								document.getElementById('save').style.visibility = 'visible';
-							} else if (this.languageType == 'bat'|| this.languageType == 'lua') {
+							} else if (this.languageType == 'bat') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'hidden';
 								document.getElementById('kill').style.visibility = 'visible';
@@ -422,32 +422,62 @@
 			},
 			async sendLoopPost(mylist) {
 				for (let i = 0; i <= mylist.length; i++) {
-					if(i < mylist.length){
-						let input = "b " + String(mylist[i] + 2);
-						let dataT = {
-							filename: this.filename,
-							input: input,
-						};
-						await axios.post("/input", dataT)
-							.then(
-								(receive) => {
-									console.log('@ ', i);
-								}
-							)
+					if(this.languageType == 'java'){
+						if(i < mylist.length){
+							let input = "stop at "+String(this.filename) +":"+ String(mylist[i]);
+							let dataT = {
+								filename: this.filename,
+								input: input,
+							};
+							await axios.post("/input", dataT)
+								.then(
+									(receive) => {
+										console.log('@ ', i);
+									}
+								)
+						}
+						else{
+							let input = "run";
+							let dataT = {
+								filename: this.filename,
+								input: input,
+							};
+							await axios.post("/input", dataT)
+								.then(
+									(receive) => {
+										console.log('@ ', i);
+									}
+								)
+						}
+					}else{
+						if(i < mylist.length){
+							let input = "b " + String(mylist[i] + 2);
+							let dataT = {
+								filename: this.filename,
+								input: input,
+							};
+							await axios.post("/input", dataT)
+								.then(
+									(receive) => {
+										console.log('@ ', i);
+									}
+								)
+						}
+						else{
+							let input = "c";
+							let dataT = {
+								filename: this.filename,
+								input: input,
+							};
+							await axios.post("/input", dataT)
+								.then(
+									(receive) => {
+										console.log('@ ', i);
+									}
+								)
+						}
 					}
-					else{
-						let input = "c";
-						let dataT = {
-							filename: this.filename,
-							input: input,
-						};
-						await axios.post("/input", dataT)
-							.then(
-								(receive) => {
-									console.log('@ ', i);
-								}
-							)
-					}
+						
 				}
 			},
 			highlight() {
@@ -575,7 +605,7 @@
 			debug_s() {
 				let code = this.editor.getValue();
 				const path = "/input";
-				input = 's'
+				input = 'step'
 				let dataT = {
 					filename: this.filename,
 					input: input,
@@ -592,7 +622,7 @@
 			debug_n() {
 				let code = this.editor.getValue();
 				const path = "/input";
-				input = 'n'
+				input = 'next'
 				let dataT = {
 					filename: this.filename,
 					input: input,
@@ -738,7 +768,7 @@
 				}
 			},
 			isPythonOrLuaEditor() {
-				return (this.editor.getModel().getLanguageId() === "python") || (this.editor.getModel().getLanguageId() === "lua");
+				return (this.editor.getModel().getLanguageId() === "python") || (this.editor.getModel().getLanguageId() === "java") || (this.editor.getModel().getLanguageId() === "lua");
 			},
 			insertContent(text) {
 				if (this.editor) {

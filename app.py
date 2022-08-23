@@ -104,6 +104,28 @@ def debugCode():
             taskmgr.pop(path, None)        
             taskmgr[path] = localprocess.process(debugpath, type)
             return 'done'
+        elif(request.get_json()['type']=='java'):
+            path = request.get_json()['filename']
+            debugpath = path.rsplit('\\', 1)[0] + '\\.' + path.rsplit('\\', 1)[1]
+            mycode = request.get_json()['code']
+            type = request.get_json()['type']
+            breakpoints = request.get_json()['breakpoints'].split(',')
+            old = mycode
+            if breakpoints[0] == '':
+                pass
+            else:
+                mycode = 'require("ldb")\nldb.ldb_open()\n'+mycode
+            saveCodeFunc(path, old)
+            saveCodeFunc(debugpath, mycode)
+            # 加入断点后开始运行
+            if path in taskmgr.keys():
+                taskmgr[path].kill()
+            taskmgr.pop(path, None)        
+            opath  = debugpath.rsplit('\\',1)[0] + '\\'+path.rsplit('\\',1)[1].rsplit('.',1)[0]
+            taskmgr[path] = localprocess.process(debugpath, 'javac')
+            taskmgr[path] = localprocess.process(opath, 'jdb')
+            # taskmgr[path] = localprocess.process(opath, 'run')
+            return 'done'
         else:
             return 'done'
             pass
