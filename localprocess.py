@@ -42,17 +42,15 @@ class process():
                         shell=False, 
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
-            self.queue = Queue()
-            self.thread = Thread(target=enqueue_output, args=(self.p.stdout, self.queue))
-            self.errqueue = Queue()
-            self.errthread = Thread(target=enqueue_output, args=(self.p.stderr, self.errqueue))
+            self.thread = Thread(target=self.get_output_stdout)
+            self.errthread = Thread(target=self.get_output_stderr)
             self.thread.daemon = True
             self.errthread.daemon = True
-            # self.thread.start()
-            # self.errthread.start()
-            # self.countermod = 9999999
             self.forceEnd = False
             self.counter = -1
+            self.lock = Lock()
+            self.stdout_str = ''
+            self.stderr_str = ''
             return
         elif(functype == "java"):
             func_exec = 'java'
