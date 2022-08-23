@@ -47,6 +47,60 @@ class process():
                         shell=False,
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
+        # elif(functype == "javac"):
+        #     self.p = Popen(['javac', '-g',dir.rsplit('\\', 1)[1]],
+        #                 stdin=PIPE,
+        #                 stdout=PIPE,
+        #                 stderr=PIPE,
+        #                 bufsize=10,
+        #                 universal_newlines=True,
+        #                 shell=False,
+        #                 cwd=dir.rsplit('\\', 1)[0],
+        #                 close_fds=ON_POSIX)
+        # elif(functype == "java"):
+        #     self.p = Popen(['java', dir.rsplit('\\', 1)[1]],
+        #                 stdin=PIPE,
+        #                 stdout=PIPE,
+        #                 stderr=PIPE,
+        #                 bufsize=10,
+        #                 universal_newlines=True,
+        #                 shell=False,
+        #                 cwd=dir.rsplit('\\', 1)[0],
+        #                 close_fds=ON_POSIX)
+        elif(functype == "javac"):
+            func_exec = 'javac'
+            self.p = Popen([func_exec, '-g',dir.rsplit('\\', 1)[1]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        encoding='utf-8',
+                        shell=False, 
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
+            self.queue = Queue()
+            self.thread = Thread(target=enqueue_output, args=(self.p.stdout, self.queue))
+            self.errqueue = Queue()
+            self.errthread = Thread(target=enqueue_output, args=(self.p.stderr, self.errqueue))
+            self.thread.daemon = True
+            self.errthread.daemon = True
+            # self.thread.start()
+            # self.errthread.start()
+            # self.countermod = 9999999
+            self.forceEnd = False
+            self.counter = -1
+            return
+        elif(functype == "java"):
+            func_exec = 'java'
+            self.p = Popen([func_exec,dir.rsplit('\\', 1)[1]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        encoding='utf-8',
+                        shell=False, 
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
         else:
             print(dir.rsplit('\\', 1)[1], dir.rsplit('\\', 1)[0])
             self.p = Popen(dir,

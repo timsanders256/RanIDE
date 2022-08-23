@@ -33,7 +33,12 @@ def runCode():
         if path in taskmgr.keys():
             taskmgr[path].kill()
         taskmgr.pop(path, None)        
-        taskmgr[path] = localprocess.process(path, type)
+        if(type == 'java'):
+            opath  = path.rsplit('\\',1)[0] + '\\'+path.rsplit('\\',1)[1].rsplit('.',1)[0]
+            taskmgr[path] = localprocess.process(path, 'javac')
+            taskmgr[path] = localprocess.process(opath, type)
+        else:
+            taskmgr[path] = localprocess.process(path, type)
         return 'done'
 
 @app.route('/saveCode', methods=['GET', 'POST'])
