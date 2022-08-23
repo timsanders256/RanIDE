@@ -1,5 +1,3 @@
-import pdb
-pdb.set_trace()
 import Tprint
 
 Tprint.printT()

@@ -8,7 +8,11 @@ class test
         b = bb;
     }
     int add()
-    {return a+b;}
+    {
+        System.out.println(a);
+        System.out.println(b);
+        return a+b;
+    }
 }
 public class hehe
 {

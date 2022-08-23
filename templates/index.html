@@ -442,7 +442,10 @@
 				for (let i = 0; i <= mylist.length; i++) {
 					if(this.languageType == 'java'){
 						if(i < mylist.length){
-							let input = "stop at "+String(this.filename) +":"+ String(mylist[i]);
+							let fileArr = String(this.filename).split('.')[0].split('\\');
+							let input = "stop at "+fileArr[fileArr.length-1]+":"+ String(mylist[i]);
+							console.log(this.filename);
+							console.log(input);
 							let dataT = {
 								filename: this.filename,
 								input: input,
@@ -686,7 +689,10 @@
 			debug_c() {
 				let code = this.editor.getValue();
 				const path = "/input";
-				input = 'c'
+				input = 'c';
+				if(this.languageType == 'java'){
+					input = 'cont';
+				}
 				let dataT = {
 					filename: this.filename,
 					input: input,
