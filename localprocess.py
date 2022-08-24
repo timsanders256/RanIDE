@@ -4,11 +4,14 @@ from threading  import Thread, Lock
 import sys
 import os
 
+## NEWEST
+
 ON_POSIX = 'posix' in sys.builtin_module_names
 os.environ["PYTHONUNBUFFERED"] = "1"
 
 class process():
     def __init__(self,  dir, functype="python") -> None:
+        self.lock = Lock()
         if(functype == "python"):
             func_exec = "python"
             self.p = Popen([func_exec, dir.rsplit('\\', 1)[1]],
@@ -27,6 +30,7 @@ class process():
                         stdout=PIPE,
                         stderr=PIPE,
                         bufsize=10,
+                        encoding='utf-8',
                         universal_newlines=True,
                         shell=False,
                         cwd=dir.rsplit('\\', 1)[0],
@@ -53,8 +57,7 @@ class process():
             self.stderr_str = ''
             return
         elif(functype == "java"):
-            func_exec = 'java'
-            self.p = Popen([func_exec,dir.rsplit('\\', 1)[1]],
+            compile_process = Popen(['javac',dir.rsplit('\\', 1)[1]],
                         stdin=PIPE,
                         stdout=PIPE,
                         stderr=PIPE,
@@ -63,9 +66,10 @@ class process():
                         shell=False, 
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
-        elif(functype == "jdb"):
-            func_exec = 'jdb'
-            self.p = Popen([func_exec,dir.rsplit('\\', 1)[1]],
+            self.lock.acquire()
+            self.stdout_str, self.stderr_str = compile_process.communicate()
+            self.lock.release()
+            self.p = Popen(['java',dir.rsplit('\\', 1)[1].rsplit('.',1)[0]],
                         stdin=PIPE,
                         stdout=PIPE,
                         stderr=PIPE,
@@ -74,15 +78,28 @@ class process():
                         shell=False, 
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
-        # elif(dir =="run"):
-        #     self.p = Popen(dir,
-        #                 stdin=PIPE,
-        #                 stdout=PIPE,
-        #                 stderr=PIPE,
-        #                 bufsize=10,
-        #                 universal_newlines=True,
-        #                 shell=False,
-        #                 close_fds=ON_POSIX)
+        elif(functype == "java-debug"):
+            compile_process = Popen(['javac',dir.rsplit('\\', 1)[1]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        universal_newlines=True,
+                        shell=False, 
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
+            self.lock.acquire()
+            self.stdout_str, self.stderr_str = compile_process.communicate()
+            self.lock.release()
+            self.p = Popen(['jdb',dir.rsplit('\\', 1)[1].rsplit('.',1)[0]],
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE,
+                        bufsize=10,
+                        universal_newlines=True,
+                        shell=False, 
+                        cwd=dir.rsplit('\\', 1)[0],
+                        close_fds=ON_POSIX)
         else:
             print(dir.rsplit('\\', 1)[1], dir.rsplit('\\', 1)[0])
             self.p = Popen(dir,
@@ -101,7 +118,6 @@ class process():
         self.errthread.start()
         self.forceEnd = False
         self.counter = -1
-        self.lock = Lock()
         self.stdout_str = ''
         self.stderr_str = ''
     

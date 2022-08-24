@@ -32,7 +32,9 @@
                     <el-button type="primary" class="scrollbar-demo-item" icon="el-icon-files"
                         @click="dialogVisible = true">创建
                     </el-button>
+					<!--
                     <el-button type="primary" class="scrollbar-demo-item" icon="el-icon-setting">设置</el-button>
+					-->
                 </el-scrollbar>
             </el-aside>
 
@@ -74,7 +76,7 @@
                     <el-form-item label="项目名称">
                         <el-input v-model="form.name"></el-input>
                     </el-form-item>
-                    <el-form-item label="项目发起人">
+                    <el-form-item label="发起人">
                         <el-input v-model="form.creator"></el-input>
                     </el-form-item>
                 </el-form>

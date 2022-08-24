@@ -4,6 +4,7 @@ import project
 import files
 import os
 import shutil
+import chardet
 from werkzeug.routing import BaseConverter
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -33,12 +34,7 @@ def runCode():
         if path in taskmgr.keys():
             taskmgr[path].kill()
         taskmgr.pop(path, None)        
-        if(type == 'java'):
-            opath  = path.rsplit('\\',1)[0] + '\\'+path.rsplit('\\',1)[1].rsplit('.',1)[0]
-            taskmgr[path] = localprocess.process(path, 'javac')
-            taskmgr[path] = localprocess.process(opath, type)
-        else:
-            taskmgr[path] = localprocess.process(path, type)
+        taskmgr[path] = localprocess.process(path, type)
         return 'done'
 
 @app.route('/saveCode', methods=['GET', 'POST'])
@@ -118,8 +114,8 @@ def debugCode():
                 taskmgr[path].kill()
             taskmgr.pop(path, None)        
             opath  = debugpath.rsplit('\\',1)[0] + '\\'+path.rsplit('\\',1)[1].rsplit('.',1)[0]
-            taskmgr[path] = localprocess.process(debugpath, 'javac')
-            taskmgr[path] = localprocess.process(opath, 'jdb')
+            taskmgr[path] = localprocess.process(debugpath, 'java-debug')
+            # taskmgr[path] = localprocess.process(opath, 'jdb')
             # taskmgr[path] = localprocess.process(opath, 'run')
             return 'done'
         else:
@@ -140,7 +136,9 @@ def getCode():
     if request.method == 'POST':
         path = request.get_json()['filename']
         print(path)
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, 'rb') as f:
+            cur_encoding = chardet.detect(f.read())['encoding']
+        with open(path, 'r', encoding=cur_encoding) as f:
             code = f.read()
         # print(code)
         return code
@@ -198,9 +196,14 @@ def code():
         }
         return render_template('index.html', arg=arg)  
     
+# 项目管理页面（首页）
+@app.route('/', methods=['GET'])
+def homepage():
+    if request.method == 'GET':
+        return render_template('homepage.html')
 
 # 项目管理页面（首页）
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/projectmanagement', methods=['POST', 'GET'])
 def projectmanagement():
     if request.method == 'POST':
         tmp = request.get_json()["name"]

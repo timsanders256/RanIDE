@@ -36,6 +36,13 @@
 </style>
 <body>
     <main>
+		<!--
+		<el-container style="padding: 0; margin: 0; ">
+			<el-tabs v-model="activeName" type="card" editable>
+				<el-tab-pane v-for="item in tabsManager" name="item.name" label="item.label"></el-tab-pane>
+			</el-tabs>
+		</el-container>
+		-->
         <div class="top" style="height: 24px;">
             <button class="topbutton" id="save" type="button" @click="saveCode">保存</button>
             <button class="topbutton" id="run" type="button" @click="runCode">运行</button>
@@ -49,8 +56,10 @@
 
 		<el-container>
 			<el-aside style="width: 200px;">
-				<el-button icon="el-icon-s-home" type="text" round style="margin-top: 10px;" @click="return_homepage">
+				<el-button icon="el-icon-s-home" type="text" round style="margin-top: 10px; margin-left: 0; margin-bottom: 0;" @click="return_homepage">
 					回到首页</el-button>
+				<el-button icon="el-icon-menu" type="text" round style="margin-top: 10px; margin-left: 0; margin-top: 0;" @click="return_projectpage">
+					回到项目页</el-button>
 				<div id="menu" v-show="showMenu" ref="showPanel" @click.prevent="handleMenu"
 					style="position: fixed; z-index: 999; cursor:pointer; background-color:white;">
 					<el-cascader-panel ref="cas-menu" :options="options" size="medium"></el-cascader-panel>
@@ -63,11 +72,11 @@
 							<span slot-scope="{node, data}">
 								<i v-if="data.type === 'dir'" class="el-icon-folder"></i>
 								<i v-if="data.type === 'python'" class="el-icon-python"></i>
-								<i v-if="data.type === 'markdown'" class="el-icon-info"></i>
-								<i v-if="data.type === 'bat'" class="el-icon-info"></i>
-								<i v-if="data.type === 'cpp'" class="el-icon-info"></i>
-								<i v-if="data.type === 'javascript'" class="el-icon-info"></i>
-								<i v-if="data.type === 'lua'" class="el-icon-info"></i>
+								<i v-if="data.type === 'markdown'" class="el-icon-edit-outline"></i>
+								<i v-if="data.type === 'bat'" class="el-icon-edit-outline"></i>
+								<i v-if="data.type === 'cpp'" class="el-icon-edit-outline"></i>
+								<i v-if="data.type === 'javascript'" class="el-icon-edit-outline"></i>
+								<i v-if="data.type === 'lua'" class="el-icon-lua"></i>
 								<i v-if="data.type === 'file'" class="el-icon-files"></i>
 								<i v-if="data.type === 'java'" class="el-icon-java"></i>
 								<span style="margin-left: 5%">{[node.label]}</span>
@@ -79,6 +88,17 @@
 
 			<el-main style="padding: 0; width: auto;">
 				
+				<el-header style="height: 40px; padding: 0; ">
+					<el-tabs v-model="editableTabsValue" type="card" size="small" closable @tab-remove="removeTab" @tab-click="changeTab">
+						<el-tab-pane
+							v-for="(item, index) in editableTabs"
+							:key="item.name"
+							:label="item.label"
+							:name="item.name"
+						>
+						</el-tab-pane>
+					  </el-tabs>
+				</el-header>
 					<el-upload action="" :http-request="importData" style="display:none">
 						<el-button size="small" type="primary" id='upload_btn'>点击上传</el-button>
 					</el-upload>
@@ -122,10 +142,22 @@
 		delimiters: ["{[", "]}"],
 		el: "main",
 		data: {
+			editableTabsValue: '1',
+			editableTabs: [
+				// {
+				// 	label: "首页",
+				// 	name: '1',
+				// 	path: "path1",
+				// 	filenode: null,
+				// },
+			],
+			tabIndex: 1,
+			loading: false,
 			languageShow: "Python",
 			languageType: "python",
 			editor: null,
 			filename: null,
+			filenameExec: null,
 			terminal: "",
 			timer: null,
 			state: "done",
@@ -204,6 +236,63 @@
 		},
 
 		methods: {
+			// 添加选项卡
+			addTab(targetName, data) {
+				var flag = false;
+				for(var i = 0, len = this.editableTabs.length; i < len; i++) {
+					// 当前已经打开该tab
+					if(this.editableTabs[i].path === data.path){
+						this.editableTabsValue = this.editableTabs[i].name;
+						flag = true;
+						break;
+					}
+				}
+				if(flag === false){
+					// console.log('hello---------')
+					let newTabName = ++this.tabIndex + '';
+					this.editableTabs.push({
+						label: data.label,
+						name: newTabName,
+						path: data.path,
+						filenode: data,
+					});
+					this.editableTabsValue = newTabName;
+				}
+			},
+			// 删除选项卡
+			removeTab(targetName) {
+				// 当只剩一个页面时禁止删除,否则执行以下操作
+				if(this.editableTabs.length !== 1){
+					let tabs = this.editableTabs;
+					let activeName = this.editableTabsValue;
+					if (activeName === targetName) {
+					tabs.forEach((tab, index) => {
+						if (tab.name === targetName) {
+							let nextTab = tabs[index + 1] || tabs[index - 1];
+							if (nextTab) {
+								activeName = nextTab.name;
+							}
+						}
+					});
+					}
+					
+					this.editableTabsValue = activeName;
+					this.changeTab({name: this.editableTabsValue}, 0);
+					this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+				}
+			},
+			// 改变选项卡
+			changeTab(tab, event) {
+				// console.log(tab)
+				let node;
+				for(var i = 0, len = this.editableTabs.length; i < len; i++) {
+					if(this.editableTabs[i].name === tab.name) {
+						node = this.editableTabs[i].filenode;
+						break;
+					}
+				}
+				this.openCode(node, 0);
+			},
 			changeLanguage(questtype){
 				if(questtype=="python"){
 					this.languageShow = "Python";
@@ -286,10 +375,17 @@
 				let input = terminal.pop();
 				// 发送输入信息
 				const path = "/input";
-				let dataT = {
-					filename: this.filename,
-					input: input,
-				};
+				let buffer_last_line = null;
+				if(this.rec_counter >= 1) {
+					let buffer_line = this.rec_buffer[this.rec_counter - 1].split('\n');
+					buffer_last_line = buffer_line[buffer_line.length - 1];
+				} else {
+					buffer_last_line = '';
+				}
+                let dataT = {
+                    filename: this.filenameExec,
+                    input: input.replace(buffer_last_line, ''),
+                };
 				axios.post(path, dataT)
 					.then((response) => {
 						if (response.data === "done") {
@@ -319,7 +415,7 @@
 				// 发送输入信息
 				const path = "/output";
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					type: "output",
 				};
 				if (this.state !== "error") {
@@ -345,7 +441,7 @@
 
 				// 错误信息
 				let dataT2 = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					type: "errmsg",
 				};
 				if (this.state === "error") {
@@ -382,6 +478,7 @@
 					.then(
 						(receive) => {
 							this.changeLanguage(this.getType(this.filename));
+							document.title = 'RanIDE: ' + this.filename.replace('workspace\\', '');
 							if (this.languageType == 'python' || this.languageType == 'java'|| this.languageType == 'lua') {
 								document.getElementById('run').style.visibility = 'visible';
 								document.getElementById('debug').style.visibility = 'visible';
@@ -400,9 +497,10 @@
 							}
 							//this.getType(this.filename)
 							this.editor.updateOptions({ readOnly: false });
-							this.editor.setValue(receive.data);
+							this.editor.setValue(receive.data.replace(/^io[.]stdout[:][\s]setvbuf 'no'[\s]/, ''));
 							// console.log(receive.data);
-							this.state = "done";
+							// this.state = "done";
+							this.loading = false;
 						}
 					);
 			},
@@ -411,8 +509,9 @@
 			runCode() {
 				let code = this.editor.getValue();
 				const path = "/runCode";
+				this.filenameExec = this.filename;
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					type: this.languageType,
 					code: this.editor.getValue()
 				};
@@ -431,6 +530,8 @@
 									this.rec_counter = 0;
 									this.state = "running";
 									document.getElementById("terminal").value = ("# Starting\n");
+									// TODO 
+									document.getElementById("terminal").readOnly = false;
 								})
 							} else {
 								this.$message({type: 'error=', message: '请检查网络'});
@@ -442,12 +543,12 @@
 				for (let i = 0; i <= mylist.length; i++) {
 					if(this.languageType == 'java'){
 						if(i < mylist.length){
-							let fileArr = String(this.filename).split('.')[0].split('\\');
+							let fileArr = String(this.filenameExec).split('.')[0].split('\\');
 							let input = "stop at "+fileArr[fileArr.length-1]+":"+ String(mylist[i]);
-							console.log(this.filename);
+							console.log(this.filenameExec);
 							console.log(input);
 							let dataT = {
-								filename: this.filename,
+								filename: this.filenameExec,
 								input: input,
 							};
 							await axios.post("/input", dataT)
@@ -460,7 +561,7 @@
 						else{
 							let input = "run";
 							let dataT = {
-								filename: this.filename,
+								filename: this.filenameExec,
 								input: input,
 							};
 							await axios.post("/input", dataT)
@@ -474,7 +575,7 @@
 						if(i < mylist.length){
 							let input = "b " + String(mylist[i] + 2);
 							let dataT = {
-								filename: this.filename,
+								filename: this.filenameExec,
 								input: input,
 							};
 							await axios.post("/input", dataT)
@@ -487,7 +588,7 @@
 						else{
 							let input = "c";
 							let dataT = {
-								filename: this.filename,
+								filename: this.filenameExec,
 								input: input,
 							};
 							await axios.post("/input", dataT)
@@ -516,7 +617,7 @@
 				//console.log(num);
 				// file留到之后文件切换使用
 				num = Number(num) - offset
-				if (file !== this.filename) return
+				if (file !== this.filenameExec) return;
 				if (this.line_number === null) {
 					lines = document.getElementsByClassName('line-numbers')
 					line = lines[num - 1]
@@ -557,7 +658,7 @@
 				console.log(breakpoints);
 				
 					let dataT = {
-						filename: this.filename,
+						filename: this.filenameExec,
 						type: this.languageType,
 						code: code,
 						breakpoints: breakpoints.join(",")
@@ -585,13 +686,14 @@
 				
 			},
 			async killCode() {
+				console.log(this.state);
 				if (this.state != "running") {
 					this.$message({type: 'info', message: '程序未运行'});
 					return;
 				}
 				const path = "/killCode";
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 				};
 				axios.post(path, dataT)
 					.then(
@@ -636,7 +738,7 @@
 				const path = "/input";
 				input = 'step'
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					input: input,
 				};
 				axios.post(path, dataT)
@@ -653,7 +755,7 @@
 				const path = "/input";
 				input = 'next'
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					input: input,
 				};
 				axios.post(path, dataT)
@@ -674,7 +776,7 @@
 					input = 'finish';
 				}
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					input: input,
 				};
 				axios.post(path, dataT)
@@ -694,7 +796,7 @@
 					input = 'cont';
 				}
 				let dataT = {
-					filename: this.filename,
+					filename: this.filenameExec,
 					input: input,
 				};
 				axios.post(path, dataT)
@@ -709,6 +811,10 @@
 			//返回主页
 			return_homepage() {
 				window.location.href = "/";
+			},
+			//返回项目
+			return_projectpage() {
+				window.location.href = "/projectmanagement";
 			},
 			//添加断点
 			async addBreakPoint(line) {
@@ -1115,21 +1221,23 @@
                 this.filenode = data;
                 // 文件均采用相对路径
                 if(data.type !== 'dir'){
-                    if(this.state !== "loading") {
+					this.addTab(this.editableTabsValue, data);
+                    if(this.loading == false) {
                         if (this.state === "running") {
                             this.saveCode().then(() => {
-                                this.killCode().then(() => {
+                                //this.killCode().then(() => {
                                     this.filename = this.filenode.path;
-                                    this.state = "loading";
+                                    this.loading = true;
                                     this.getCode();
                                     // 更新断点信息
                                     this.updateBreakPoints();
-                                })
+                                //})
                             })
                         } else if (this.filename !== null) {
                             this.saveCode().then(() => {
                                 this.filename = this.filenode.path;
                                 this.state = "loading";
+								this.loading = true;
                                 console.log("else if loading");
                                 this.getCode();
                                 // 更新断点信息
@@ -1138,7 +1246,7 @@
                         } else {
                             // 初次启动
                             this.filename = this.filenode.path;
-                            this.state = "loading";
+                            this.loading = true;
                             console.log("else loading");
                             this.getCode();
                             // 更新断点信息
@@ -1168,9 +1276,20 @@
             },
 
         },
+		watch : {
+		   'activeName':function(val) { //监听切换状态-计划单
+				let urlStr = '/index/test?tabid=' + val;
+				console.log(val);
+				// 注释，根据val的不同，跳转到不同
+		   },
+		},
         mounted: function () {
-            buttons = document.getElementsByClassName('topbutton');
+			buttons = document.getElementsByClassName('debugbutton');
+			for (let i = 0; i < buttons.length; i++) {
+				buttons[i].style.display = 'none';
+			}
 			document.getElementById("terminal").readOnly = true;
+            buttons = document.getElementsByClassName('topbutton');
             for (let i = 0; i < buttons.length; i++) {
                 buttons[i].style.visibility = 'hidden';
             }
