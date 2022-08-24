@@ -497,7 +497,7 @@
 							}
 							//this.getType(this.filename)
 							this.editor.updateOptions({ readOnly: false });
-							this.editor.setValue(receive.data.replace(/^io[.]stdout[:][\s]setvbuf 'no'[\s]/, ''));
+							this.editor.setValue(receive.data.replace(/^io[.]stdout[:][\s]setvbuf 'no'[\s]io[.]stderr[:][\s]setvbuf 'no'[\s]/, ''));
 							// console.log(receive.data);
 							// this.state = "done";
 							this.loading = false;
@@ -510,10 +510,13 @@
 				let code = this.editor.getValue();
 				const path = "/runCode";
 				this.filenameExec = this.filename;
+				if(this.languageType == "lua"){
+					code = "io.stdout: setvbuf 'no' io.stderr: setvbuf 'no' " + code;
+				}
 				let dataT = {
 					filename: this.filenameExec,
 					type: this.languageType,
-					code: this.editor.getValue()
+					code: code
 				};
 				if (this.state === 'running' || this.timer !== null) {
 					this.$message({type: 'error', message: '请先终止程序，或等待运行完毕'});
@@ -643,7 +646,7 @@
 				let code = this.editor.getValue();
 				this.filenameExec = this.filename;
 				if(this.languageType == "lua") {
-					code = "io.stdout: setvbuf 'no'" + code;
+					code = "io.stdout: setvbuf 'no' io.stderr: setvbuf 'no' " + code;
 				}
 				const path = "/debugCode";
 				// 读取断点位置
@@ -717,7 +720,7 @@
 				let code = this.editor.getValue();
 				const path = "/saveCode";
 				if(this.languageType == "lua") {
-					code = "io.stdout: setvbuf 'no' " + code;
+					code = "io.stdout: setvbuf 'no' io.stderr: setvbuf 'no' " + code;
 				}
 				let dataT = {
 					filename: this.filename,
