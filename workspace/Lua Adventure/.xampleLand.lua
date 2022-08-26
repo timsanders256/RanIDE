@@ -1,3 +1,5 @@
+require("ldb")
+ldb.ldb_open()
 io.stdout: setvbuf 'no' io.stderr: setvbuf 'no' require 'adventure'
 
 -- starting values, only change the last three items please
