@@ -52,3 +52,33 @@
     /* font-size: 16px; */
     visibility: hidden;
 }
+
+.el-icon-lua{
+    background: url('./img/luaicon.png') 
+    center no-repeat;
+    /* font-size: 16px; */
+}
+
+.el-icon-lua:before{
+    content: "替";
+    /* font-size: 16px; */
+    visibility: hidden;
+}
+
+.el-icon-java{
+    background: url('./img/javaicon.png') 
+    center no-repeat;
+    /* font-size: 16px; */
+}
+
+.el-icon-java:before{
+    content: "替";
+    /* font-size: 16px; */
+    visibility: hidden;
+}
+
+.el-icon-ranIDE{
+    background: url('./img/ran.png') 
+    center no-repeat;
+    /* font-size: 16px; */
+}

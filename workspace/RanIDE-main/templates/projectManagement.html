@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<head>
+    <title>RanIDE Demo</title>
+    <meta charset="UTF-8" />
+    <script src="/static/vue.js" type="text/javascript"></script>
+    <script src="/static/index.js"></script>
+    <link rel="stylesheet" href="/static/index-element-theme-chalk.css">
+    <!--
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    -->
+    <script src="/static/axios.js" type="text/javascript"></script>
+    <link rel="shortcut icon" href="/static/img/ran.ico" type="image/x-icon" />
+    <link data-name="vs/editor/editor.main" rel="stylesheet" href="/static/monaco-editor/min/vs/editor/editor.main.css">
+    <script src="/static/monaco-editor/min/vs/loader.js" type="text/javascript"></script>
+    <script src="/static/monaco-editor/min/vs/editor/editor.main.nls.js"></script>
+    <script src="/static/monaco-editor/min/vs/editor/editor.main.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/projectManagement.css" />
+    <!--
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    -->
+    <script src="/static/jquery.min.js"></script>
+</head>
+
+<body>
+    <main>
+
+        <el-container class="layout-container-demo" style="height: 500px">
+            <el-aside width="150px">
+                <el-scrollbar height="400px">
+                    <el-button type="primary" class="scrollbar-demo-item" icon="el-icon-files"
+                        @click="dialogVisible = true">创建
+                    </el-button>
+					<!--
+                    <el-button type="primary" class="scrollbar-demo-item" icon="el-icon-setting">设置</el-button>
+					-->
+                </el-scrollbar>
+            </el-aside>
+
+            <el-container>
+                <el-header style="text-align: left; font-size: 30px">
+                    <div class="toolbar">
+                        <h1>全部项目</h1>
+                    </div>
+                </el-header>
+
+                <el-main>
+                    <p>{[projectnum]}个项目</p>
+                    <el-tabs type="border-card">
+                        <el-tab-pane label="全部项目">
+                            <el-table :data="project_items" style="width: 100%" :row-class-name="projects">
+                                <el-table-column prop="name" label="项目名称" width="300%">
+                                </el-table-column>
+                                <el-table-column prop="creator" label="创建人" width="300%">
+                                </el-table-column>
+                                <el-table-column prop="createdDate" label="创建时间">
+                                </el-table-column>
+                                <el-table-column label="操作" width="200%">
+                                    <template slot-scope="scope">
+                                        <el-button @click="open_p(scope.row.name)" type="text"
+                                            icon="el-icon-edit-outline" size="small">打开</el-button>
+                                        <el-button @click="rename_p(scope.row.name)" type="text" icon="el-icon-edit"
+                                            size="small">重命名</el-button>
+                                        <el-button @click="delete_p(scope.row.name)" type="text" icon="el-icon-delete"
+                                            size="small">删除</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+                    </el-tabs>
+                </el-main>
+            </el-container>
+            <el-dialog title="创建项目" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+                <el-form ref="form" :model="form" label-width="80px">
+                    <el-form-item label="项目名称">
+                        <el-input v-model="form.name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="发起人">
+                        <el-input v-model="form.creator"></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="dialogVisible = false;create_proj()">确 定</el-button>
+                </span>
+            </el-dialog>
+            <el-dialog title="重命名项目" :visible.sync="dialog2Visible" width="30%" :before-close="handleClose">
+                <el-form ref="form" :model="form2" label-width="80px">
+                    <el-form-item label="项目名称">
+                        <el-input v-model="form2.newname"></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialog2Visible = false">取 消</el-button>
+                    <el-button type="primary" @click="dialog2Visible = false;rename_proj()">确 定</el-button>
+                </span>
+            </el-dialog>
+        </el-container>
+    </main>
+</body>
+
+<script type="text/javascript">
+    var projectManagementpage = new Vue({
+        delimiters: ["{[", "]}"],
+        el: "main",
+        data: {
+            dialogVisible: false,
+            dialog2Visible: false,
+            projectnum: 0,
+            project_items: [],
+            form: {
+                name: '',
+                creator: 'user',
+            },
+            form2: {
+                newname: ""
+            },
+            todelete: ''
+        },
+        methods: {
+            rename_p(name) {
+                this.dialog2Visible = true;
+                this.todelete = name;
+            },
+            delete_p(name) {
+                console.log("to delete");
+                axios({
+                    method: 'post',
+                    url: '/deleteProj',
+                    data: {
+                        name: name
+                    }
+                })
+                    .then((res) => {
+                        this.updateData();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
+
+            },
+            open_p(name) {
+                console.log(name);
+                axios({
+                    method: 'post',
+                    url: '/code',
+                    data: {
+                        name: name
+                    }
+                })
+                    .then(function (response) {
+                        console.log(response.data);
+                        a = "/code" + "?projectname=" + encodeURIComponent(encodeURIComponent(response.data));
+                        location.href = a;
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            updateData() {
+                const path = '/updateData';
+                axios
+                    .get(path)
+                    .then((res) => {
+                        console.log(res.data);
+                        this.project_items = res.data.projs;
+                        this.projectnum = res.data.proj_num;
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    })
+            },
+            create_proj() {
+                console.log("to create");
+                axios({
+                    method: 'post',
+                    url: '/createProj',
+                    data: {
+                        name: this.form.name,
+                        creator: this.form.creator
+                    }
+                })
+                    .then((res) => {
+                        this.updateData();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
+
+            },
+            rename_proj() {
+                console.log("to rename");
+                axios({
+                    method: 'post',
+                    url: '/renameProj',
+                    data: {
+                        newname: this.form2.newname,
+                        oldname: this.todelete
+                    }
+                })
+                    .then((res) => {
+                        this.updateData();
+                        this.todelete = '';
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
+
+            }
+        },
+        mounted: function () {
+            console.log("mounted");
+            this.updateData();
+        },
+    });
+</script>

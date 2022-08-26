@@ -8,7 +8,11 @@ class test
         b = bb;
     }
     int add()
-    {return a+b;}
+    {
+        System.out.println(a);
+        System.out.println(b);
+        return a+b;
+    }
 }
 public class hehe
 {
@@ -16,7 +20,7 @@ public class hehe
     {
         int a = 2;
         int b = 3;
-        int c= a+b;
+        int c = a+b;
         System.out.println(c);
         test kk=new test(1,2);
         System.out.println(kk.add());
