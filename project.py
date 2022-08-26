@@ -4,10 +4,10 @@ import shutil
 import datetime
 import json
 
-file_base = os.path.abspath(os.path.dirname(__file__))
+#file_base = os.path.abspath(os.path.dirname(__file__))
 
 def create_proj(name='proj', creator='user'):
-    global file_base
+    #global file_base
     if os.path.exists(f'workspace\\'+name):
         print("existing project!")
     else:
@@ -27,7 +27,7 @@ def create_proj(name='proj', creator='user'):
 
 def rename_proj(oldname,newname):
     print(oldname, newname)
-    global file_base
+    #global file_base
     path = f'myProject.json'
     with open(path, 'r') as f_obj:
         proj_list = json.load(f_obj)
@@ -45,7 +45,6 @@ def rename_proj(oldname,newname):
 
 
 def delete_proj(todeleteName):
-    global file_base
     shutil.rmtree(f'workspace\\'+ todeleteName)
     path = f'myProject.json'
     with open(path, 'r') as f_obj:
@@ -54,7 +53,7 @@ def delete_proj(todeleteName):
         if proj['name'] == todeleteName:
             proj_list.remove(proj)
 
-    tf = open(file_base +  f"myProject.json", "w")
+    tf = open(f"myProject.json", "w")
     json.dump(proj_list,tf)
     tf.close()
 
