@@ -1,4 +1,4 @@
-math.randomseed(os.time())
+io.stdout: setvbuf 'no' io.stderr: setvbuf 'no' math.randomseed(os.time())
 
 gbl = {}
 cfg = {}

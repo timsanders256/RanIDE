@@ -496,11 +496,11 @@
 								document.getElementById('save').style.visibility = 'visible';
 							}
 							//this.getType(this.filename)
-							this.loading = false;
 							this.editor.updateOptions({ readOnly: false });
 							this.editor.setValue(receive.data.replace(/^io[.]stdout[:][\s]setvbuf 'no'[\s]io[.]stderr[:][\s]setvbuf 'no'[\s]/, ''));
 							// console.log(receive.data);
 							// this.state = "done";
+							this.loading = false;
 						}
 					);
 			},
@@ -537,7 +537,7 @@
 									document.getElementById("terminal").readOnly = false;
 								})
 							} else {
-								this.$message({type: 'error=', message: '请检查网络'});
+								this.$message({type: 'error', message: '请检查网络'});
 							}
 						}
 					);
@@ -1172,7 +1172,8 @@
                 m.style.left = event.clientX + 'px';
                 // m.style.cssText = " left: " + (event.clientX - 10) + 'px' + "; top: " + (event.clientY - 25) + 'px;  background: "white"';
                 this.showMenu = true;
-            },saveBreakPoints() {
+            },
+			saveBreakPoints() {
                 // 保存原文件断点信息(已经打开了文件)
                 if(this.filename !== null){
                     var flag = false;
@@ -1240,7 +1241,7 @@
                         } else if (this.filename !== null) {
                             this.saveCode().then(() => {
                                 this.filename = this.filenode.path;
-                                this.state = "loading";
+                                // this.state = "loading";
 								this.loading = true;
                                 console.log("else if loading");
                                 this.getCode();

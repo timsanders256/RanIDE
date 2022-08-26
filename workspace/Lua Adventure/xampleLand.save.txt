@@ -1,0 +1,45 @@
+{
+  prowess = {
+    state = "wimpy",
+    report = ""
+  },
+  name = "a",
+  location = "room00",
+  commands = {
+    s = "south",
+    n = "north",
+    e = "east",
+    x = "examine",
+    w = "west"
+  },
+  enemytypes = {
+    "tiny_drone",
+    "small_drone",
+    "drone",
+    "large_drone"
+  },
+  previousresponse = "",
+  description = "This is the starting location. I called it room00.",
+  roomswithenemies = {
+    "room01",
+    "room02"
+  },
+  options = {
+    i = "Inventory",
+    l = "Load",
+    n = "Go North; to another room. (Careful, you can be attack in the other rooms)",
+    v = "Save",
+    x = "Examine",
+    q = "Quit"
+  },
+  health = {
+    state = "healthy",
+    report = ""
+  },
+  inventory = {
+    "the_inevitable_round_hole"
+  },
+  conditions = {
+    timesinroom00 = 1
+  }
+}
