@@ -1,3 +1,4 @@
+from re import X
 from subprocess import Popen, PIPE
 from functools import partial
 from threading  import Thread, Lock
@@ -166,8 +167,8 @@ class process():
             return line, self.counter
         else:
             if(self.p.poll() is not None):
-                if self.forceEnd == False:
-                    return -1, 0
+                #if self.forceEnd == False:
+                return -1, 0
             return 0, 0
     
     def get_errmsg(self):
@@ -180,6 +181,6 @@ class process():
             return line, self.counter
         else:
             if(self.p.poll() is not None):
-                if self.forceEnd == False:
-                    return -1, 0
+                #if self.forceEnd == False:
+                return -1, 0
             return 0, 0
