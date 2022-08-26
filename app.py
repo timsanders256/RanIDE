@@ -32,6 +32,8 @@ def runCode():
         type = request.get_json()['type']
         saveCodeFunc(path, mycode)
         if path in taskmgr.keys():
+            if(taskmgr[path].state_running() == True):
+                return 'mult'
             taskmgr[path].kill()
         taskmgr.pop(path, None)        
         taskmgr[path] = localprocess.process(path, type)
@@ -73,6 +75,8 @@ def debugCode():
             saveCodeFunc(debugpath,mycode)
             # 加入断点后开始运行
             if path in taskmgr.keys():
+                if(taskmgr[path].state_running() == True):
+                    return 'mult'
                 taskmgr[path].kill()
             taskmgr.pop(path, None)        
             taskmgr[path] = localprocess.process(debugpath, type)
@@ -138,7 +142,7 @@ def getCode():
         with open(path, 'r', encoding=cur_encoding) as f:
             code = f.read()
         # print(code)
-        return code
+        return 'SOF' + code
 
 # inputProcess，outputProcess函数为测试代码，后端可删除
 # input process

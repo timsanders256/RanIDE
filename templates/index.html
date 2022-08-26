@@ -402,7 +402,7 @@
 				this.timer = setInterval(() => {
 					// console.log('asking for out');
 					this.outputTerminal();
-				}, 500);
+				}, 499);
 			},
 			// 测试，清除定时器
 			async clearTime() {
@@ -458,12 +458,14 @@
 							if (response.data.value === -1) {
 								this.clearTime().then(() => {
 									this.state = "done";
+									document.getElementById("terminal")
 									this.debug = "off";
 									el_term.scrollTop = el_term.scrollHeight;
 									buttons = document.getElementsByClassName('debugbutton');
 									for (let i = 0; i < buttons.length; i++) {
 										buttons[i].style.display = 'none';
 									}
+									this.$message({type:"info",message:"终止"})
 								});
 							}
 						});
@@ -498,6 +500,7 @@
 								document.getElementById('save').style.visibility = 'visible';
 							}
 							//this.getType(this.filename)
+                            receive.data = receive.data.replace(/^SOF/, '');
 							this.editor.updateOptions({ readOnly: false });
 							this.editor.setValue(receive.data.replace(/^io[.]stdout[:][\s]setvbuf 'no'[\s]io[.]stderr[:][\s]setvbuf 'no'[\s]/, ''));
 							// console.log(receive.data);
@@ -538,7 +541,11 @@
 									// TODO 
 									document.getElementById("terminal").readOnly = false;
 								})
-							} else {
+                            }
+                            else if (receive.data === "mult") {
+                                this.$message({ type: 'error', message: '请先终止程序，或等待运行完毕(程序在另一页面上运行)' });
+							}
+							else {
 								this.$message({type: 'error=', message: '请检查网络'});
 							}
 						}
@@ -547,11 +554,11 @@
 			async sendLoopPost(mylist) {
 				if (this.languageType == 'python') {
                     console.log(mylist)
-                    console.log(this.curBreakPoint)
+					console.log(this.curBreakPoint)
 					for (let j = 0; j < this.curBreakPoint.info.length; j++) {
                         let paths = this.curBreakPoint.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
                         console.log(paths)
-                        let path = paths[paths.length - 1]
+                        let path = '.' + paths[paths.length - 1]
 						let input = "b " + path + ":" + String(this.curBreakPoint.info[j] + 2);
 						console.log(input)
 						let dataT = {
@@ -597,7 +604,6 @@
                     await axios.post("/input", dataT)
                         .then(
                             (receive) => {
-                                console.log('asdasdsgy');
                             }
                         )
 				}
@@ -664,36 +670,72 @@
                     }
 				}
 			},
+			findnode(docu, label) {
+				console.log("findnode")
+				console.log(docu)
+				if (docu.length === 0) {
+					return ""
+				}
+				let deeper = []
+				for (let i = 0; i < docu.length; i++) {
+					if (docu[i].children.length === 0) {
+						if (docu[i].label.toLowerCase() === label) {
+							return docu[i]
+						}
+					}
+					else {
+						deeper.push(docu[i])
+					}
+				}
+				return this.findnode(deeper,label)
+			},
 			highlight() {
 				let offset = 0;
-				if (this.debug === "on") {
-					offset = 2;
-				}
 				let terminal = document.getElementById("terminal").value;
 				//console.log(terminal);
-				let reg_match = />.*\\(\S+)\((\d+)\)<module>/gm;
+				let reg_match = /> d:\\git\\ranide\\(.+)\((\d+)\)/gm;
 				rows = terminal.match(reg_match);
-				//console.log(rows)
+				console.log(rows)
 				file = RegExp.$1;
 				num = RegExp.$2;
-				//console.log(file);
-				//console.log(num);
+				console.log(file);
+				console.log(num);
 				// file留到之后文件切换使用
                 let paths = this.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
-                console.log(paths)
-				let path = paths[paths.length - 1]
-				let label = file + ".py"
-				console.log("asdasd" + label)
-				//if ((file + ".py") !== path) {
-    //                for (var i = 0, len = this.editableTabs.length; i < len; i++) {
-    //                    if (this.editableTabs[i].label === label) {
-    //                        node = this.editableTabs[i].filenode;
-    //                        break;
-    //                    }
-    //                }
-    //                this.openCode(node, 0);
-				//}
+				console.log(paths)
+				let path = paths[paths.length - 1].toLowerCase()
+				let labels = file.split('\\')
+				console.log(labels)
+				let label1 = labels[labels.length - 1]
+				if (label1.startsWith(".")) {
+					label1 = label1.slice(1)
+				}
+				console.log("asdasd" + label1)
+				console.log(this.files)
+				console.log(path)
+				console.log(terminal)
+				if (label1 !== path) {
+					let node = ""
+                    for (var i = 0, len = this.editableTabs.length; i < len; i++) {
+                        if (this.editableTabs[i].label === label1) {
+                            node = this.editableTabs[i].filenode;
+                            break;
+                        }
+					}
+					if (node === "") {
+						node = this.findnode(this.files[0].children, label1)
+						console.log(node)
+					}
+					if (node === "") {
+						return
+					}
+                    this.openCode(node, 0);
+				}
+				if (label1 === this.filenameExec) {
+					offset = 2
+				}
 				num = Number(num) - offset
+				console.log("lightnum:" + num)
 				//if (file !== this.filenameExec) return;
 				if (this.line_number === null) {
 					lines = document.getElementsByClassName('line-numbers')
@@ -709,6 +751,7 @@
 				}
 				//console.log(this.line_number)
 				this.line_number = num
+                console.log(terminal)
 
 			},
 			debugCode() {
@@ -770,31 +813,36 @@
 			},
 			async killCode() {
 				console.log(this.state);
+				/*
 				if (this.state != "running") {
 					this.$message({type: 'info', message: '程序未运行'});
 					return;
-				}
+				}*/
 				this.debug = "off"
 				const path = "/killCode";
 				let dataT = {
 					filename: this.filenameExec,
 				};
-				axios.post(path, dataT)
-					.then(
-						(receive) => {
-							if (receive.data === "done") {
-								this.clearTime().then(() => {
-									this.state = 'done';
-									document.getElementById("terminal").readOnly = true;
-									this.$message({type: 'info', message: '程序终止'});
-									buttons = document.getElementsByClassName('debugbutton')
-									for (let i = 0; i < buttons.length; i++) {
-										buttons[i].style.display = 'none'
-									}
-								});
-							}
-						}
-					);
+                axios.post(path, dataT)
+                    .then(
+                        (receive) => {
+                            if (receive.data === "done") {
+                                this.clearTime().then(() => {
+                                    if (this.state == "running" || this.state == "error") {
+                                        this.$message({ type: 'info', message: '当前页面程序终止' });
+                                    }
+                                    this.state = 'done';
+                                    document.getElementById("terminal").readOnly = true;
+                                    buttons = document.getElementsByClassName('debugbutton');
+                                    for (let i = 0; i < buttons.length; i++) {
+                                        buttons[i].style.display = 'none'
+                                    }
+                                });
+                            } else {
+                                this.$message({ type: 'info', message: '程序未运行' });
+                            }
+                        }
+                    );
 			},
 			async saveCode() {
 				let code = this.editor.getValue();
@@ -908,12 +956,14 @@
 				model.deltaDecorations([], [value])
 				if (this.debug === 'on') {
 					let offset = 0
+					let add = ""
 					if (this.filenameExec === this.filename) {
 						offset = 2
+						add = "."
 					}
                     let paths = this.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
                     console.log(paths)
-                    let path = paths[paths.length - 1]
+                    let path = add + paths[paths.length - 1]
 					let input = "b " + path + ":" + String(line + offset);  //之后多文件可能还得改file
 					console.log(input)
 					let dataT = {
@@ -948,12 +998,14 @@
 				}
 				if (this.debug === 'on') {
                     let offset = 0
+                    let add = ""
                     if (this.filenameExec === this.filename) {
                         offset = 2
+                        add = "."
                     }
                     let paths = this.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
                     console.log(paths)
-                    let path = paths[paths.length - 1]
+                    let path = add + paths[paths.length - 1]
                     let input = "cl " + path + ":" + String(line + offset);  //之后多文件可能还得改file
 					console.log(input)
 					let dataT = {
@@ -1308,13 +1360,13 @@
                     this.curBreakPoint.info = [];
                 }
                 // 添加断点
-                this.curBreakPoint.info.forEach((item) => {
-                    console.log("@1000 ", item, "添加断点");
-                    this.addBreakPoint(item);
-                    console.log("验证是否成功添加断点：", this.hasBreakPoint(item));
-                });
+                //this.curBreakPoint.info.forEach((item) => {
+                //    console.log("@1000 ", item, "添加断点");
+                //    this.addBreakPoint(item);
+                //    console.log("验证是否成功添加断点：", this.hasBreakPoint(item));
+                //});
             },
-            openCode(data, event) {                
+            openCode(data, event) { 
                 // 保存原文件断点信息
                 this.saveBreakPoints();
                 this.filenode = data;
@@ -1354,7 +1406,8 @@
                             this.updateBreakPoints();
                         }
                     }
-                }
+				}
+				console.log(this.filename)
             },
             importData(item) {
                 console.log("upload");

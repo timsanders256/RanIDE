@@ -1,4 +1,4 @@
-io.stdout: setvbuf 'no' require 'adventure'
+io.stdout: setvbuf 'no' io.stderr: setvbuf 'no' io.stdout: setvbuf 'no' require 'adventure'
 
 game = {
   done = false,
