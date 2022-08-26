@@ -285,6 +285,8 @@
 			changeTab(tab, event) {
 				// console.log(tab)
 				let node;
+                console.log(this.editableTabs)
+				console.log("asdasd:" + tab.name)
 				for(var i = 0, len = this.editableTabs.length; i < len; i++) {
 					if(this.editableTabs[i].name === tab.name) {
 						node = this.editableTabs[i].filenode;
@@ -543,65 +545,123 @@
 					);
 			},
 			async sendLoopPost(mylist) {
-				for (let i = 0; i <= mylist.length; i++) {
-					if(this.languageType == 'java'){
-						if(i < mylist.length){
-							let fileArr = String(this.filenameExec).split('.')[0].split('\\');
-							let input = "stop at "+fileArr[fileArr.length-1]+":"+ String(mylist[i]);
-							console.log(this.filenameExec);
-							console.log(input);
-							let dataT = {
-								filename: this.filenameExec,
-								input: input,
-							};
-							await axios.post("/input", dataT)
-								.then(
-									(receive) => {
-										console.log('@ ', i);
-									}
-								)
-						}
-						else{
-							let input = "run";
-							let dataT = {
-								filename: this.filenameExec,
-								input: input,
-							};
-							await axios.post("/input", dataT)
-								.then(
-									(receive) => {
-										console.log('@ ', i);
-									}
-								)
-						}
-					}else{
-						if(i < mylist.length){
-							let input = "b " + String(mylist[i] + 2);
-							let dataT = {
-								filename: this.filenameExec,
-								input: input,
-							};
-							await axios.post("/input", dataT)
-								.then(
-									(receive) => {
-										console.log('@ ', i);
-									}
-								)
-						}
-						else{
-							let input = "c";
-							let dataT = {
-								filename: this.filenameExec,
-								input: input,
-							};
-							await axios.post("/input", dataT)
-								.then(
-									(receive) => {
-										console.log('@ ', i);
-									}
-								)
-						}
-					}
+				if (this.languageType == 'python') {
+                    console.log(mylist)
+                    console.log(this.curBreakPoint)
+					for (let j = 0; j < this.curBreakPoint.info.length; j++) {
+                        let paths = this.curBreakPoint.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
+                        console.log(paths)
+                        let path = paths[paths.length - 1]
+						let input = "b " + path + ":" + String(this.curBreakPoint.info[j] + 2);
+						console.log(input)
+						let dataT = {
+							filename: this.filenameExec,
+                            input: input,
+                        };
+                        await axios.post("/input", dataT)
+                            .then(
+                                (receive) => {
+                                    console.log('@ ', j);
+                                }
+                            )
+                    }
+                    for (let i = 0; i < mylist.length; i++) {
+                        let cur = mylist[i]
+                        let curfile = mylist[i].filename
+                        let curbp = mylist[i].info
+                        if (curfile === this.curBreakPoint.filename) {
+                            continue
+                        }
+                        for (let j = 0; j < curbp.length; j++) {
+                            let paths = curfile.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
+                            console.log(paths)
+                            let path = paths[paths.length - 1]
+							let input = "b " + path + ':' + String(curbp[j]);
+                            console.log(input)
+                            let dataT = {
+                                filename: this.filename,
+                                input: input,
+                            };
+                            await axios.post("/input", dataT)
+                                .then(
+                                    (receive) => {
+                                    }
+                                )
+                        }
+                    }
+                    let input = 'c';
+                    let dataT = {
+                        filename: this.filename,
+                        input: input,
+                    };
+                    await axios.post("/input", dataT)
+                        .then(
+                            (receive) => {
+                                console.log('asdasdsgy');
+                            }
+                        )
+				}
+				else {
+                    for (let i = 0; i <= mylist.length; i++) {
+                        if (this.languageType == 'java') {
+                            if (i < mylist.length) {
+                                let fileArr = String(this.filenameExec).split('.')[0].split('\\');
+                                let input = "stop at " + fileArr[fileArr.length - 1] + ":" + String(mylist[i]);
+                                console.log(this.filenameExec);
+                                console.log(input);
+                                let dataT = {
+                                    filename: this.filenameExec,
+                                    input: input,
+                                };
+                                await axios.post("/input", dataT)
+                                    .then(
+                                        (receive) => {
+                                            console.log('@ ', i);
+                                        }
+                                    )
+                            }
+                            else {
+                                let input = "run";
+                                let dataT = {
+                                    filename: this.filenameExec,
+                                    input: input,
+                                };
+                                await axios.post("/input", dataT)
+                                    .then(
+                                        (receive) => {
+                                            console.log('@ ', i);
+                                        }
+                                    )
+                            }
+                        } else {
+                            if (i < mylist.length) {
+                                let input = "b " + String(mylist[i] + 2);
+                                let dataT = {
+                                    filename: this.filenameExec,
+                                    input: input,
+                                };
+                                await axios.post("/input", dataT)
+                                    .then(
+                                        (receive) => {
+                                            console.log('@ ', i);
+                                        }
+                                    )
+                            }
+                            else {
+                                let input = "c";
+                                let dataT = {
+                                    filename: this.filenameExec,
+                                    input: input,
+                                };
+                                await axios.post("/input", dataT)
+                                    .then(
+                                        (receive) => {
+                                            console.log('@ ', i);
+                                        }
+                                    )
+                            }
+                        }
+                    }
 				}
 			},
 			highlight() {
@@ -619,8 +679,22 @@
 				//console.log(file);
 				//console.log(num);
 				// file留到之后文件切换使用
+                let paths = this.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
+                console.log(paths)
+				let path = paths[paths.length - 1]
+				let label = file + ".py"
+				console.log("asdasd" + label)
+				//if ((file + ".py") !== path) {
+    //                for (var i = 0, len = this.editableTabs.length; i < len; i++) {
+    //                    if (this.editableTabs[i].label === label) {
+    //                        node = this.editableTabs[i].filenode;
+    //                        break;
+    //                    }
+    //                }
+    //                this.openCode(node, 0);
+				//}
 				num = Number(num) - offset
-				if (file !== this.filenameExec) return;
+				//if (file !== this.filenameExec) return;
 				if (this.line_number === null) {
 					lines = document.getElementsByClassName('line-numbers')
 					line = lines[num - 1]
@@ -661,32 +735,37 @@
 				console.log(this.languageType);
 				console.log(breakpoints);
 				
-					let dataT = {
-						filename: this.filenameExec,
-						type: this.languageType,
-						code: code,
-						breakpoints: breakpoints.join(",")
-					};
-					axios.post(path, dataT)
-						.then(
-							(receive) => {
-								if (receive.data === "done") {
-									this.rec_counter = 0;
-									this.rec_buffer = [];
-									this.myTimer();
-									this.state = "running";
-									this.debug = "on"
-									document.getElementById("terminal").value = (">>> Debugging\n");
-									document.getElementById("terminal").readOnly = false;
-									this.$message({type: 'info', message: "调试请求发送成功"});
-									buttons = document.getElementsByClassName('debugbutton');
-									for (let i = 0; i < buttons.length; i++) {
-										buttons[i].style.display = 'inline-block';
-									}
-									this.sendLoopPost(breakpoints);
+				let dataT = {
+					filename: this.filenameExec,
+					type: this.languageType,
+					code: code,
+					breakpoints: breakpoints.join(",")
+				};
+				axios.post(path, dataT)
+					.then(
+						(receive) => {
+							if (receive.data === "done") {
+								this.rec_counter = 0;
+								this.rec_buffer = [];
+								this.myTimer();
+								this.state = "running";
+								this.debug = "on"
+								document.getElementById("terminal").value = (">>> Debugging\n");
+								document.getElementById("terminal").readOnly = false;
+								this.$message({type: 'info', message: "调试请求发送成功"});
+								buttons = document.getElementsByClassName('debugbutton');
+								for (let i = 0; i < buttons.length; i++) {
+									buttons[i].style.display = 'inline-block';
+								}
+								if (this.languageType == "python") {
+									this.sendLoopPost(this.breakPointsInfo);
+								}
+								else {
+                                    this.sendLoopPost(breakpoints);
 								}
 							}
-						);
+						}
+					);
 				
 			},
 			async killCode() {
@@ -695,6 +774,7 @@
 					this.$message({type: 'info', message: '程序未运行'});
 					return;
 				}
+				this.debug = "off"
 				const path = "/killCode";
 				let dataT = {
 					filename: this.filenameExec,
@@ -827,10 +907,17 @@
 				let value = { range: new monaco.Range(line, 1, line, 1), options: { isWholeLine: true, linesDecorationsClassName: "breakpoints" } }
 				model.deltaDecorations([], [value])
 				if (this.debug === 'on') {
-					let input = "b " + String(line + 2);  //之后多文件可能还得改file
+					let offset = 0
+					if (this.filenameExec === this.filename) {
+						offset = 2
+					}
+                    let paths = this.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
+                    console.log(paths)
+                    let path = paths[paths.length - 1]
+					let input = "b " + path + ":" + String(line + offset);  //之后多文件可能还得改file
 					console.log(input)
 					let dataT = {
-						filename: this.filename,
+						filename: this.filenameExec,
 						input: input,
 					};
 					await axios.post("/input", dataT)
@@ -860,10 +947,17 @@
 					model.deltaDecorations(ids, [])
 				}
 				if (this.debug === 'on') {
-					let input = "cl " + 'debug\\' + String(this.filename) + ':' + String(line + 2);  //之后多文件可能还得改file
+                    let offset = 0
+                    if (this.filenameExec === this.filename) {
+                        offset = 2
+                    }
+                    let paths = this.filename.split('\\')  //将workspace\test\mod.py分开，只需要最后的mod.py
+                    console.log(paths)
+                    let path = paths[paths.length - 1]
+                    let input = "cl " + path + ":" + String(line + offset);  //之后多文件可能还得改file
 					console.log(input)
 					let dataT = {
-						filename: this.filename,
+						filename: this.filenameExec,
 						input: input,
 					};
 					await axios.post("/input", dataT)
@@ -1172,7 +1266,8 @@
                 m.style.left = event.clientX + 'px';
                 // m.style.cssText = " left: " + (event.clientX - 10) + 'px' + "; top: " + (event.clientY - 25) + 'px;  background: "white"';
                 this.showMenu = true;
-            },saveBreakPoints() {
+			},
+			saveBreakPoints() {
                 // 保存原文件断点信息(已经打开了文件)
                 if(this.filename !== null){
                     var flag = false;
@@ -1226,6 +1321,8 @@
                 // 文件均采用相对路径
                 if(data.type !== 'dir'){
 					this.addTab(this.editableTabsValue, data);
+					console.log(this.editableTabsValue)
+                    console.log(data)
                     if(this.loading == false) {
                         if (this.state === "running") {
                             this.saveCode().then(() => {

@@ -1,4 +1,4 @@
 {
   "TestFramework": "unittest",
-  "Interpreter": "Workspace|Workspace|venv"
+  "Interpreter": "Global|VisualStudio|flask (Python 3.9 (64-bit))"
 }
