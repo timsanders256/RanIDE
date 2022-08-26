@@ -3,7 +3,7 @@ from functools import partial
 from threading  import Thread, Lock
 import sys
 import os
-
+import platform
 ## NEWEST
 
 ON_POSIX = 'posix' in sys.builtin_module_names
@@ -24,7 +24,13 @@ class process():
                         cwd=dir.rsplit('\\', 1)[0],
                         close_fds=ON_POSIX)
         elif(functype == "lua"):
-            func_exec = 'lua_Win32_bin\\lua52.exe'
+            system_type = platform.system()
+            if(system_type == 'Windows'):
+                func_exec = 'lua_Win32_bin\\lua52.exe'
+            elif(system_type == 'Linux'):
+                func_exec = 'lua-5.2.4_Linux32_64_bin\\lua52'
+            else:
+                func_exec = 'lua'
             self.p = Popen([func_exec, dir.rsplit('\\', 1)[1]],
                         stdin=PIPE,
                         stdout=PIPE,

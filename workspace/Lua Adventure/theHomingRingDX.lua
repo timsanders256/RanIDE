@@ -1,4 +1,4 @@
-io.stdout: setvbuf 'no' require 'adventure'
+require 'adventure'
 
 game = {
   done = false,

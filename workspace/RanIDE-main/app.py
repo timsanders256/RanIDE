@@ -102,6 +102,7 @@ def debugCode():
             return 'done'
         elif(request.get_json()['type']=='java'):
             path = request.get_json()['filename']
+            print(path)
             debugpath = path.rsplit('\\', 1)[0] + '\\' + path.rsplit('\\', 1)[1]
             mycode = request.get_json()['code']
             type = request.get_json()['type']

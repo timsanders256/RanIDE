@@ -496,11 +496,11 @@
 								document.getElementById('save').style.visibility = 'visible';
 							}
 							//this.getType(this.filename)
+							this.loading = false;
 							this.editor.updateOptions({ readOnly: false });
 							this.editor.setValue(receive.data.replace(/^io[.]stdout[:][\s]setvbuf 'no'[\s]io[.]stderr[:][\s]setvbuf 'no'[\s]/, ''));
 							// console.log(receive.data);
 							// this.state = "done";
-							this.loading = false;
 						}
 					);
 			},

@@ -1,6 +1,5 @@
-io.stdout: setvbuf 'no'require 'adventure'
+require 'adventure'
 
-print('Lua执行测试')
 -- starting values, only change the last three items please
 game = {
   done = false,
